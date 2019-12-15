@@ -16,13 +16,13 @@ Please be sure that you have newest version of `free` tool, `3.3.10` and higher,
 because old one have different output format.
 
     $ free -V
-    free from procps-ng 3.3.10
+    free from procps-ng 3.3.15
 
 Edit `/etc/zabbix/zabbix_agentd.d/zabbix_container.conf`:
 
 Add user parameter for retrieve memory information:
 
-    UserParameter=ct.memory.size[*],free -b | awk '$ 1 == "Mem:" {total=$ 2; used=($ 3+$ 5); pused=(($ 3+$ 5)*100/$ 2); free=$ 4; pfree=($ 4*100/$ 2); shared=$ 5; buffers=$ 6; cache=$ 6; available=($ 6+$ 7); pavailable=(($ 6+$ 7)*100/$ 2); if("$1" == "") {printf("%.0f", total )} else {printf("%.0f", $1 "" )} }'
+    UserParameter=ct.memory.size[*],free -b | awk '$ 1 == "Mem:" {total=$ 2; used=($ 3+$ 5); pused=(($ 3+$ 5)*100/$ 2); free=$ 4; pfree=($ 4*100/$ 2); shared=$ 5; buffers=$ 6; cache=$ 6; available=($ 7); pavailable=(+$ 7*100/$ 2); if("$1" == "") {printf("%.0f", total )} else {printf("%.0f", $1 "" )} }'
 
 Add another one for retrieve swap information:
 
@@ -32,12 +32,13 @@ Add another one for retrieve right CPU load information:
 
     UserParameter=ct.cpu.load[*],uptime | awk -F'[, ]+' '{avg1=$(NF-2); avg5=$(NF-1); avg15=$(NF)}{print $2/'$(nproc)'}'
 
-Or just download and copy my [zabbix_container.conf](https://github.com/kvaps/zabbix-linux-container-template/blob/master/zabbix_container.conf).
+Or just download and copy my zabbix_container.conf.
 
 It will provide you support for next parameters:
 
     ct.memory.size[total]
     ct.memory.size[free]
+    ct.memory.size[pfree]
     ct.memory.size[buffers]
     ct.memory.size[cached]
     ct.memory.size[shared]
@@ -77,12 +78,12 @@ remove commas in key filed here. Example:<br> replace `system.swap.size[,free]`
 to `ct.swap.size[free]`
 * Replace all `system.cpu.load[percpu,*]` items to `ct.cpu.load[percpu,*]`.
 
-Or just download and import [my zabbix template](https://github.com/kvaps/zabbix-linux-container-template/blob/master/zbx_linux_container_template.xml).
+Or just download and import zbx_linux_container_template.xml.
 
 Next, go to the Configuration → Hosts
 
-* Unlink and clear “Template OS Linux” from your hosts
-* Attach “Template Linux Container”
+* Unlink and clear “Template OS Linux by Zabbix agent” from your hosts
+* Attach “Template OS Linux Container by Zabbix agent”
 
 Wait some time and check the graphics:
 

@@ -1,1980 +1,605 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <zabbix_export>
-    <version>3.4</version>
-    <date>2018-01-25T15:03:17Z</date>
+    <version>4.4</version>
+    <date>2019-12-15T13:19:53Z</date>
     <groups>
         <group>
-            <name>Templates</name>
+            <name>Templates/Modules</name>
+        </group>
+        <group>
+            <name>Templates/Operating systems</name>
         </group>
     </groups>
     <templates>
         <template>
-            <template>Template Linux Container</template>
-            <name>Template Linux Container</name>
-            <description/>
+            <template>Template Module Linux Container CPU by Zabbix agent</template>
+            <name>Template Module Linux Container CPU by Zabbix agent</name>
+            <description>Template tooling version used: 0.32</description>
             <groups>
                 <group>
-                    <name>Templates</name>
+                    <name>Templates/Modules</name>
                 </group>
             </groups>
             <applications>
                 <application>
                     <name>CPU</name>
                 </application>
-                <application>
-                    <name>Filesystems</name>
-                </application>
-                <application>
-                    <name>General</name>
-                </application>
+            </applications>
+            <items>
+                <item>
+                    <name>Load average (1m avg)</name>
+                    <key>ct.cpu.load[all,avg1]</key>
+                    <history>7d</history>
+                    <value_type>FLOAT</value_type>
+                    <applications>
+                        <application>
+                            <name>CPU</name>
+                        </application>
+                    </applications>
+                </item>
+                <item>
+                    <name>Load average (5m avg)</name>
+                    <key>ct.cpu.load[all,avg5]</key>
+                    <history>7d</history>
+                    <value_type>FLOAT</value_type>
+                    <applications>
+                        <application>
+                            <name>CPU</name>
+                        </application>
+                    </applications>
+                </item>
+                <item>
+                    <name>Load average (15m avg)</name>
+                    <key>ct.cpu.load[all,avg15]</key>
+                    <history>7d</history>
+                    <value_type>FLOAT</value_type>
+                    <applications>
+                        <application>
+                            <name>CPU</name>
+                        </application>
+                    </applications>
+                </item>
+                <item>
+                    <name>Interrupts per second</name>
+                    <key>system.cpu.intr</key>
+                    <history>7d</history>
+                    <value_type>FLOAT</value_type>
+                    <applications>
+                        <application>
+                            <name>CPU</name>
+                        </application>
+                    </applications>
+                    <preprocessing>
+                        <step>
+                            <type>CHANGE_PER_SECOND</type>
+                            <params/>
+                        </step>
+                    </preprocessing>
+                </item>
+                <item>
+                    <name>Number of CPUs</name>
+                    <key>system.cpu.num</key>
+                    <history>7d</history>
+                    <applications>
+                        <application>
+                            <name>CPU</name>
+                        </application>
+                    </applications>
+                    <preprocessing>
+                        <step>
+                            <type>DISCARD_UNCHANGED_HEARTBEAT</type>
+                            <params>1d</params>
+                        </step>
+                    </preprocessing>
+                </item>
+                <item>
+                    <name>Context switches per second</name>
+                    <key>system.cpu.switches</key>
+                    <history>7d</history>
+                    <value_type>FLOAT</value_type>
+                    <applications>
+                        <application>
+                            <name>CPU</name>
+                        </application>
+                    </applications>
+                    <preprocessing>
+                        <step>
+                            <type>CHANGE_PER_SECOND</type>
+                            <params/>
+                        </step>
+                    </preprocessing>
+                </item>
+                <item>
+                    <name>CPU utilization</name>
+                    <type>DEPENDENT</type>
+                    <key>system.cpu.util</key>
+                    <delay>0</delay>
+                    <history>7d</history>
+                    <value_type>FLOAT</value_type>
+                    <units>%</units>
+                    <description>CPU utilization in %</description>
+                    <applications>
+                        <application>
+                            <name>CPU</name>
+                        </application>
+                    </applications>
+                    <preprocessing>
+                        <step>
+                            <type>JAVASCRIPT</type>
+                            <params>//Calculate utilization
+return (100 - value)</params>
+                        </step>
+                    </preprocessing>
+                    <master_item>
+                        <key>system.cpu.util[,idle]</key>
+                    </master_item>
+                    <triggers>
+                        <trigger>
+                            <expression>{min(5m)}&gt;{$CPU.UTIL.CRIT}</expression>
+                            <name>High CPU utilization (over {$CPU.UTIL.CRIT}% for 5m)</name>
+                            <opdata>Current utilization: {ITEM.LASTVALUE1}</opdata>
+                            <priority>WARNING</priority>
+                            <dependencies>
+                                <dependency>
+                                    <name>Load average is too high (per CPU load over {$LOAD_AVG_PER_CPU.MAX.WARN} for 5m)</name>
+                                    <expression>{Template Module Linux Container CPU by Zabbix agent:ct.cpu.load[all,avg1].min(5m)}/{Template Module Linux Container CPU by Zabbix agent:system.cpu.num.last()}&gt;{$LOAD_AVG_PER_CPU.MAX.WARN}&#13;
+and {Template Module Linux Container CPU by Zabbix agent:ct.cpu.load[all,avg5].last()}&gt;0&#13;
+and {Template Module Linux Container CPU by Zabbix agent:ct.cpu.load[all,avg15].last()}&gt;0</expression>
+                                </dependency>
+                            </dependencies>
+                        </trigger>
+                    </triggers>
+                </item>
+                <item>
+                    <name>CPU guest time</name>
+                    <key>system.cpu.util[,guest]</key>
+                    <history>7d</history>
+                    <value_type>FLOAT</value_type>
+                    <units>%</units>
+                    <description>Guest  time (time  spent  running  a  virtual  CPU  for  a  guest  operating  system)</description>
+                    <applications>
+                        <application>
+                            <name>CPU</name>
+                        </application>
+                    </applications>
+                </item>
+                <item>
+                    <name>CPU guest nice time</name>
+                    <key>system.cpu.util[,guest_nice]</key>
+                    <history>7d</history>
+                    <value_type>FLOAT</value_type>
+                    <units>%</units>
+                    <description>Time spent running a niced guest (virtual CPU for guest operating systems under the control of the Linux kernel)</description>
+                    <applications>
+                        <application>
+                            <name>CPU</name>
+                        </application>
+                    </applications>
+                </item>
+                <item>
+                    <name>CPU idle time</name>
+                    <key>system.cpu.util[,idle]</key>
+                    <history>7d</history>
+                    <value_type>FLOAT</value_type>
+                    <units>%</units>
+                    <description>The time the CPU has spent doing nothing.</description>
+                    <applications>
+                        <application>
+                            <name>CPU</name>
+                        </application>
+                    </applications>
+                </item>
+                <item>
+                    <name>CPU interrupt time</name>
+                    <key>system.cpu.util[,interrupt]</key>
+                    <history>7d</history>
+                    <value_type>FLOAT</value_type>
+                    <units>%</units>
+                    <description>The amount of time the CPU has been servicing hardware interrupts.</description>
+                    <applications>
+                        <application>
+                            <name>CPU</name>
+                        </application>
+                    </applications>
+                </item>
+                <item>
+                    <name>CPU iowait time</name>
+                    <key>system.cpu.util[,iowait]</key>
+                    <history>7d</history>
+                    <value_type>FLOAT</value_type>
+                    <units>%</units>
+                    <description>Amount of time the CPU has been waiting for I/O to complete.</description>
+                    <applications>
+                        <application>
+                            <name>CPU</name>
+                        </application>
+                    </applications>
+                </item>
+                <item>
+                    <name>CPU nice time</name>
+                    <key>system.cpu.util[,nice]</key>
+                    <history>7d</history>
+                    <value_type>FLOAT</value_type>
+                    <units>%</units>
+                    <description>The time the CPU has spent running users' processes that have been niced.</description>
+                    <applications>
+                        <application>
+                            <name>CPU</name>
+                        </application>
+                    </applications>
+                </item>
+                <item>
+                    <name>CPU softirq time</name>
+                    <key>system.cpu.util[,softirq]</key>
+                    <history>7d</history>
+                    <value_type>FLOAT</value_type>
+                    <units>%</units>
+                    <description>The amount of time the CPU has been servicing software interrupts.</description>
+                    <applications>
+                        <application>
+                            <name>CPU</name>
+                        </application>
+                    </applications>
+                </item>
+                <item>
+                    <name>CPU steal time</name>
+                    <key>system.cpu.util[,steal]</key>
+                    <history>7d</history>
+                    <value_type>FLOAT</value_type>
+                    <units>%</units>
+                    <description>The amount of CPU 'stolen' from this virtual machine by the hypervisor for other tasks (such as running another virtual machine).</description>
+                    <applications>
+                        <application>
+                            <name>CPU</name>
+                        </application>
+                    </applications>
+                </item>
+                <item>
+                    <name>CPU system time</name>
+                    <key>system.cpu.util[,system]</key>
+                    <history>7d</history>
+                    <value_type>FLOAT</value_type>
+                    <units>%</units>
+                    <description>The time the CPU has spent running the kernel and its processes.</description>
+                    <applications>
+                        <application>
+                            <name>CPU</name>
+                        </application>
+                    </applications>
+                </item>
+                <item>
+                    <name>CPU user time</name>
+                    <key>system.cpu.util[,user]</key>
+                    <history>7d</history>
+                    <value_type>FLOAT</value_type>
+                    <units>%</units>
+                    <description>The time the CPU has spent running users' processes that are not niced.</description>
+                    <applications>
+                        <application>
+                            <name>CPU</name>
+                        </application>
+                    </applications>
+                </item>
+            </items>
+            <macros>
+                <macro>
+                    <macro>{$CPU.UTIL.CRIT}</macro>
+                    <value>90</value>
+                </macro>
+                <macro>
+                    <macro>{$LOAD_AVG_PER_CPU.MAX.WARN}</macro>
+                    <value>1.5</value>
+                    <description>Load per CPU considered sustainable. Tune if needed.</description>
+                </macro>
+            </macros>
+        </template>
+        <template>
+            <template>Template Module Linux Container memory by Zabbix agent</template>
+            <name>Template Module Linux Container memory by Zabbix agent</name>
+            <description>Template tooling version used: 0.32</description>
+            <groups>
+                <group>
+                    <name>Templates/Modules</name>
+                </group>
+            </groups>
+            <applications>
                 <application>
                     <name>Memory</name>
-                </application>
-                <application>
-                    <name>Network interfaces</name>
-                </application>
-                <application>
-                    <name>OS</name>
-                </application>
-                <application>
-                    <name>Performance</name>
-                </application>
-                <application>
-                    <name>Processes</name>
-                </application>
-                <application>
-                    <name>Security</name>
                 </application>
             </applications>
             <items>
                 <item>
-                    <name>Processor load (1 min average per core)</name>
-                    <type>0</type>
-                    <snmp_community/>
-                    <snmp_oid/>
-                    <key>ct.cpu.load[percpu,avg1]</key>
-                    <delay>1m</delay>
-                    <history>1w</history>
-                    <trends>365d</trends>
-                    <status>0</status>
-                    <value_type>0</value_type>
-                    <allowed_hosts/>
-                    <units/>
-                    <snmpv3_contextname/>
-                    <snmpv3_securityname/>
-                    <snmpv3_securitylevel>0</snmpv3_securitylevel>
-                    <snmpv3_authprotocol>0</snmpv3_authprotocol>
-                    <snmpv3_authpassphrase/>
-                    <snmpv3_privprotocol>0</snmpv3_privprotocol>
-                    <snmpv3_privpassphrase/>
-                    <params/>
-                    <ipmi_sensor/>
-                    <authtype>0</authtype>
-                    <username/>
-                    <password/>
-                    <publickey/>
-                    <privatekey/>
-                    <port/>
-                    <description>The processor load is calculated as system CPU load divided by number of CPU cores.</description>
-                    <inventory_link>0</inventory_link>
-                    <applications>
-                        <application>
-                            <name>CPU</name>
-                        </application>
-                        <application>
-                            <name>Performance</name>
-                        </application>
-                    </applications>
-                    <valuemap/>
-                    <logtimefmt/>
-                    <preprocessing/>
-                    <jmx_endpoint/>
-                    <master_item/>
-                </item>
-                <item>
-                    <name>Processor load (5 min average per core)</name>
-                    <type>0</type>
-                    <snmp_community/>
-                    <snmp_oid/>
-                    <key>ct.cpu.load[percpu,avg5]</key>
-                    <delay>1m</delay>
-                    <history>1w</history>
-                    <trends>365d</trends>
-                    <status>0</status>
-                    <value_type>0</value_type>
-                    <allowed_hosts/>
-                    <units/>
-                    <snmpv3_contextname/>
-                    <snmpv3_securityname/>
-                    <snmpv3_securitylevel>0</snmpv3_securitylevel>
-                    <snmpv3_authprotocol>0</snmpv3_authprotocol>
-                    <snmpv3_authpassphrase/>
-                    <snmpv3_privprotocol>0</snmpv3_privprotocol>
-                    <snmpv3_privpassphrase/>
-                    <params/>
-                    <ipmi_sensor/>
-                    <authtype>0</authtype>
-                    <username/>
-                    <password/>
-                    <publickey/>
-                    <privatekey/>
-                    <port/>
-                    <description>The processor load is calculated as system CPU load divided by number of CPU cores.</description>
-                    <inventory_link>0</inventory_link>
-                    <applications>
-                        <application>
-                            <name>CPU</name>
-                        </application>
-                        <application>
-                            <name>Performance</name>
-                        </application>
-                    </applications>
-                    <valuemap/>
-                    <logtimefmt/>
-                    <preprocessing/>
-                    <jmx_endpoint/>
-                    <master_item/>
-                </item>
-                <item>
-                    <name>Processor load (15 min average per core)</name>
-                    <type>0</type>
-                    <snmp_community/>
-                    <snmp_oid/>
-                    <key>ct.cpu.load[percpu,avg15]</key>
-                    <delay>1m</delay>
-                    <history>1w</history>
-                    <trends>365d</trends>
-                    <status>0</status>
-                    <value_type>0</value_type>
-                    <allowed_hosts/>
-                    <units/>
-                    <snmpv3_contextname/>
-                    <snmpv3_securityname/>
-                    <snmpv3_securitylevel>0</snmpv3_securitylevel>
-                    <snmpv3_authprotocol>0</snmpv3_authprotocol>
-                    <snmpv3_authpassphrase/>
-                    <snmpv3_privprotocol>0</snmpv3_privprotocol>
-                    <snmpv3_privpassphrase/>
-                    <params/>
-                    <ipmi_sensor/>
-                    <authtype>0</authtype>
-                    <username/>
-                    <password/>
-                    <publickey/>
-                    <privatekey/>
-                    <port/>
-                    <description>The processor load is calculated as system CPU load divided by number of CPU cores.</description>
-                    <inventory_link>0</inventory_link>
-                    <applications>
-                        <application>
-                            <name>CPU</name>
-                        </application>
-                        <application>
-                            <name>Performance</name>
-                        </application>
-                    </applications>
-                    <valuemap/>
-                    <logtimefmt/>
-                    <preprocessing/>
-                    <jmx_endpoint/>
-                    <master_item/>
-                </item>
-                <item>
                     <name>Available memory</name>
-                    <type>0</type>
-                    <snmp_community/>
-                    <snmp_oid/>
                     <key>ct.memory.size[available]</key>
-                    <delay>1m</delay>
-                    <history>1w</history>
-                    <trends>365d</trends>
-                    <status>0</status>
-                    <value_type>3</value_type>
-                    <allowed_hosts/>
+                    <history>7d</history>
                     <units>B</units>
-                    <snmpv3_contextname/>
-                    <snmpv3_securityname/>
-                    <snmpv3_securitylevel>0</snmpv3_securitylevel>
-                    <snmpv3_authprotocol>0</snmpv3_authprotocol>
-                    <snmpv3_authpassphrase/>
-                    <snmpv3_privprotocol>0</snmpv3_privprotocol>
-                    <snmpv3_privpassphrase/>
-                    <params/>
-                    <ipmi_sensor/>
-                    <authtype>0</authtype>
-                    <username/>
-                    <password/>
-                    <publickey/>
-                    <privatekey/>
-                    <port/>
-                    <description>Available memory is defined as free+cached+buffers memory.</description>
-                    <inventory_link>0</inventory_link>
+                    <description>Available memory, in Linux, available = free + buffers + cache. On other platforms calculation may vary. See also: https://www.zabbix.com/documentation/current/manual/appendix/items/vm.memory.size_params</description>
                     <applications>
                         <application>
                             <name>Memory</name>
                         </application>
                     </applications>
-                    <valuemap/>
-                    <logtimefmt/>
-                    <preprocessing/>
-                    <jmx_endpoint/>
-                    <master_item/>
+                </item>
+                <item>
+                    <name>Memory utilization</name>
+                    <key>ct.memory.size[pavailable]</key>
+                    <history>7d</history>
+                    <value_type>FLOAT</value_type>
+                    <units>%</units>
+                    <description>Memory used percentage is calculated as (100-pavailable)</description>
+                    <applications>
+                        <application>
+                            <name>Memory</name>
+                        </application>
+                    </applications>
+                    <preprocessing>
+                        <step>
+                            <type>JAVASCRIPT</type>
+                            <params>return (100-value);</params>
+                        </step>
+                    </preprocessing>
+                    <triggers>
+                        <trigger>
+                            <expression>{min(5m)}&gt;{$MEMORY.UTIL.MAX}</expression>
+                            <name>High memory utilization ( &gt;{$MEMORY.UTIL.MAX}% for 5m)</name>
+                            <priority>AVERAGE</priority>
+                            <dependencies>
+                                <dependency>
+                                    <name>Lack of available memory ( &lt; {$MEMORY.AVAILABLE.MIN} of {ITEM.VALUE2})</name>
+                                    <expression>{Template Module Linux Container memory by Zabbix agent:ct.memory.size[available].min(5m)}&lt;{$MEMORY.AVAILABLE.MIN} and {Template Module Linux Container memory by Zabbix agent:ct.memory.size[total].last()}&gt;0</expression>
+                                </dependency>
+                            </dependencies>
+                        </trigger>
+                    </triggers>
                 </item>
                 <item>
                     <name>Total memory</name>
-                    <type>0</type>
-                    <snmp_community/>
-                    <snmp_oid/>
                     <key>ct.memory.size[total]</key>
-                    <delay>1h</delay>
-                    <history>1w</history>
-                    <trends>365d</trends>
-                    <status>0</status>
-                    <value_type>3</value_type>
-                    <allowed_hosts/>
+                    <history>7d</history>
                     <units>B</units>
-                    <snmpv3_contextname/>
-                    <snmpv3_securityname/>
-                    <snmpv3_securitylevel>0</snmpv3_securitylevel>
-                    <snmpv3_authprotocol>0</snmpv3_authprotocol>
-                    <snmpv3_authpassphrase/>
-                    <snmpv3_privprotocol>0</snmpv3_privprotocol>
-                    <snmpv3_privpassphrase/>
-                    <params/>
-                    <ipmi_sensor/>
-                    <authtype>0</authtype>
-                    <username/>
-                    <password/>
-                    <publickey/>
-                    <privatekey/>
-                    <port/>
-                    <description/>
-                    <inventory_link>0</inventory_link>
+                    <description>Total memory in Bytes</description>
                     <applications>
                         <application>
                             <name>Memory</name>
                         </application>
                     </applications>
-                    <valuemap/>
-                    <logtimefmt/>
-                    <preprocessing/>
-                    <jmx_endpoint/>
-                    <master_item/>
                 </item>
                 <item>
-                    <name>Used swap space in %</name>
-                    <type>0</type>
-                    <snmp_community/>
-                    <snmp_oid/>
-                    <key>ct.swap.size[pused]</key>
-                    <delay>1m</delay>
-                    <history>1w</history>
-                    <trends>365d</trends>
-                    <status>0</status>
-                    <value_type>0</value_type>
-                    <allowed_hosts/>
-                    <units>%</units>
-                    <snmpv3_contextname/>
-                    <snmpv3_securityname/>
-                    <snmpv3_securitylevel>0</snmpv3_securitylevel>
-                    <snmpv3_authprotocol>0</snmpv3_authprotocol>
-                    <snmpv3_authpassphrase/>
-                    <snmpv3_privprotocol>0</snmpv3_privprotocol>
-                    <snmpv3_privpassphrase/>
-                    <params/>
-                    <ipmi_sensor/>
-                    <authtype>0</authtype>
-                    <username/>
-                    <password/>
-                    <publickey/>
-                    <privatekey/>
-                    <port/>
-                    <description/>
-                    <inventory_link>0</inventory_link>
+                    <name>Free swap space</name>
+                    <key>ct.swap.size[free]</key>
+                    <history>7d</history>
+                    <units>B</units>
                     <applications>
                         <application>
                             <name>Memory</name>
                         </application>
                     </applications>
-                    <valuemap/>
-                    <logtimefmt/>
-                    <preprocessing/>
-                    <jmx_endpoint/>
-                    <master_item/>
+                </item>
+                <item>
+                    <name>Free swap space in %</name>
+                    <key>ct.swap.size[pfree]</key>
+                    <history>7d</history>
+                    <value_type>FLOAT</value_type>
+                    <units>%</units>
+                    <applications>
+                        <application>
+                            <name>Memory</name>
+                        </application>
+                    </applications>
                 </item>
                 <item>
                     <name>Total swap space</name>
-                    <type>0</type>
-                    <snmp_community/>
-                    <snmp_oid/>
                     <key>ct.swap.size[total]</key>
-                    <delay>1h</delay>
-                    <history>1w</history>
-                    <trends>365d</trends>
-                    <status>0</status>
-                    <value_type>3</value_type>
-                    <allowed_hosts/>
+                    <history>7d</history>
                     <units>B</units>
-                    <snmpv3_contextname/>
-                    <snmpv3_securityname/>
-                    <snmpv3_securitylevel>0</snmpv3_securitylevel>
-                    <snmpv3_authprotocol>0</snmpv3_authprotocol>
-                    <snmpv3_authpassphrase/>
-                    <snmpv3_privprotocol>0</snmpv3_privprotocol>
-                    <snmpv3_privpassphrase/>
-                    <params/>
-                    <ipmi_sensor/>
-                    <authtype>0</authtype>
-                    <username/>
-                    <password/>
-                    <publickey/>
-                    <privatekey/>
-                    <port/>
-                    <description/>
-                    <inventory_link>0</inventory_link>
                     <applications>
                         <application>
                             <name>Memory</name>
                         </application>
                     </applications>
-                    <valuemap/>
-                    <logtimefmt/>
-                    <preprocessing/>
-                    <jmx_endpoint/>
-                    <master_item/>
-                </item>
-                <item>
-                    <name>Used swap space</name>
-                    <type>0</type>
-                    <snmp_community/>
-                    <snmp_oid/>
-                    <key>ct.swap.size[used]</key>
-                    <delay>1m</delay>
-                    <history>1w</history>
-                    <trends>365d</trends>
-                    <status>0</status>
-                    <value_type>3</value_type>
-                    <allowed_hosts/>
-                    <units>B</units>
-                    <snmpv3_contextname/>
-                    <snmpv3_securityname/>
-                    <snmpv3_securitylevel>0</snmpv3_securitylevel>
-                    <snmpv3_authprotocol>0</snmpv3_authprotocol>
-                    <snmpv3_authpassphrase/>
-                    <snmpv3_privprotocol>0</snmpv3_privprotocol>
-                    <snmpv3_privpassphrase/>
-                    <params/>
-                    <ipmi_sensor/>
-                    <authtype>0</authtype>
-                    <username/>
-                    <password/>
-                    <publickey/>
-                    <privatekey/>
-                    <port/>
-                    <description/>
-                    <inventory_link>0</inventory_link>
-                    <applications>
-                        <application>
-                            <name>Memory</name>
-                        </application>
-                    </applications>
-                    <valuemap/>
-                    <logtimefmt/>
-                    <preprocessing/>
-                    <jmx_endpoint/>
-                    <master_item/>
-                </item>
-                <item>
-                    <name>Maximum number of opened files</name>
-                    <type>0</type>
-                    <snmp_community/>
-                    <snmp_oid/>
-                    <key>kernel.maxfiles</key>
-                    <delay>1h</delay>
-                    <history>1w</history>
-                    <trends>365d</trends>
-                    <status>0</status>
-                    <value_type>3</value_type>
-                    <allowed_hosts/>
-                    <units/>
-                    <snmpv3_contextname/>
-                    <snmpv3_securityname/>
-                    <snmpv3_securitylevel>0</snmpv3_securitylevel>
-                    <snmpv3_authprotocol>0</snmpv3_authprotocol>
-                    <snmpv3_authpassphrase/>
-                    <snmpv3_privprotocol>0</snmpv3_privprotocol>
-                    <snmpv3_privpassphrase/>
-                    <params/>
-                    <ipmi_sensor/>
-                    <authtype>0</authtype>
-                    <username/>
-                    <password/>
-                    <publickey/>
-                    <privatekey/>
-                    <port/>
-                    <description>It could be increased by using sysctrl utility or modifying file /etc/sysctl.conf.</description>
-                    <inventory_link>0</inventory_link>
-                    <applications>
-                        <application>
-                            <name>OS</name>
-                        </application>
-                    </applications>
-                    <valuemap/>
-                    <logtimefmt/>
-                    <preprocessing/>
-                    <jmx_endpoint/>
-                    <master_item/>
-                </item>
-                <item>
-                    <name>Maximum number of processes</name>
-                    <type>0</type>
-                    <snmp_community/>
-                    <snmp_oid/>
-                    <key>kernel.maxproc</key>
-                    <delay>1h</delay>
-                    <history>1w</history>
-                    <trends>365d</trends>
-                    <status>0</status>
-                    <value_type>3</value_type>
-                    <allowed_hosts/>
-                    <units/>
-                    <snmpv3_contextname/>
-                    <snmpv3_securityname/>
-                    <snmpv3_securitylevel>0</snmpv3_securitylevel>
-                    <snmpv3_authprotocol>0</snmpv3_authprotocol>
-                    <snmpv3_authpassphrase/>
-                    <snmpv3_privprotocol>0</snmpv3_privprotocol>
-                    <snmpv3_privpassphrase/>
-                    <params/>
-                    <ipmi_sensor/>
-                    <authtype>0</authtype>
-                    <username/>
-                    <password/>
-                    <publickey/>
-                    <privatekey/>
-                    <port/>
-                    <description>It could be increased by using sysctrl utility or modifying file /etc/sysctl.conf.</description>
-                    <inventory_link>0</inventory_link>
-                    <applications>
-                        <application>
-                            <name>OS</name>
-                        </application>
-                    </applications>
-                    <valuemap/>
-                    <logtimefmt/>
-                    <preprocessing/>
-                    <jmx_endpoint/>
-                    <master_item/>
-                </item>
-                <item>
-                    <name>Number of running processes</name>
-                    <type>0</type>
-                    <snmp_community/>
-                    <snmp_oid/>
-                    <key>proc.num[,,run]</key>
-                    <delay>1m</delay>
-                    <history>1w</history>
-                    <trends>365d</trends>
-                    <status>0</status>
-                    <value_type>3</value_type>
-                    <allowed_hosts/>
-                    <units/>
-                    <snmpv3_contextname/>
-                    <snmpv3_securityname/>
-                    <snmpv3_securitylevel>0</snmpv3_securitylevel>
-                    <snmpv3_authprotocol>0</snmpv3_authprotocol>
-                    <snmpv3_authpassphrase/>
-                    <snmpv3_privprotocol>0</snmpv3_privprotocol>
-                    <snmpv3_privpassphrase/>
-                    <params/>
-                    <ipmi_sensor/>
-                    <authtype>0</authtype>
-                    <username/>
-                    <password/>
-                    <publickey/>
-                    <privatekey/>
-                    <port/>
-                    <description>Number of processes in running state.</description>
-                    <inventory_link>0</inventory_link>
-                    <applications>
-                        <application>
-                            <name>Processes</name>
-                        </application>
-                    </applications>
-                    <valuemap/>
-                    <logtimefmt/>
-                    <preprocessing/>
-                    <jmx_endpoint/>
-                    <master_item/>
-                </item>
-                <item>
-                    <name>Number of processes</name>
-                    <type>0</type>
-                    <snmp_community/>
-                    <snmp_oid/>
-                    <key>proc.num[]</key>
-                    <delay>1m</delay>
-                    <history>1w</history>
-                    <trends>365d</trends>
-                    <status>0</status>
-                    <value_type>3</value_type>
-                    <allowed_hosts/>
-                    <units/>
-                    <snmpv3_contextname/>
-                    <snmpv3_securityname/>
-                    <snmpv3_securitylevel>0</snmpv3_securitylevel>
-                    <snmpv3_authprotocol>0</snmpv3_authprotocol>
-                    <snmpv3_authpassphrase/>
-                    <snmpv3_privprotocol>0</snmpv3_privprotocol>
-                    <snmpv3_privpassphrase/>
-                    <params/>
-                    <ipmi_sensor/>
-                    <authtype>0</authtype>
-                    <username/>
-                    <password/>
-                    <publickey/>
-                    <privatekey/>
-                    <port/>
-                    <description>Total number of processes in any state.</description>
-                    <inventory_link>0</inventory_link>
-                    <applications>
-                        <application>
-                            <name>Processes</name>
-                        </application>
-                    </applications>
-                    <valuemap/>
-                    <logtimefmt/>
-                    <preprocessing/>
-                    <jmx_endpoint/>
-                    <master_item/>
-                </item>
-                <item>
-                    <name>Host boot time</name>
-                    <type>0</type>
-                    <snmp_community/>
-                    <snmp_oid/>
-                    <key>system.boottime</key>
-                    <delay>10m</delay>
-                    <history>1w</history>
-                    <trends>365d</trends>
-                    <status>0</status>
-                    <value_type>3</value_type>
-                    <allowed_hosts/>
-                    <units>unixtime</units>
-                    <snmpv3_contextname/>
-                    <snmpv3_securityname/>
-                    <snmpv3_securitylevel>0</snmpv3_securitylevel>
-                    <snmpv3_authprotocol>0</snmpv3_authprotocol>
-                    <snmpv3_authpassphrase/>
-                    <snmpv3_privprotocol>0</snmpv3_privprotocol>
-                    <snmpv3_privpassphrase/>
-                    <params/>
-                    <ipmi_sensor/>
-                    <authtype>0</authtype>
-                    <username/>
-                    <password/>
-                    <publickey/>
-                    <privatekey/>
-                    <port/>
-                    <description/>
-                    <inventory_link>0</inventory_link>
-                    <applications>
-                        <application>
-                            <name>General</name>
-                        </application>
-                        <application>
-                            <name>OS</name>
-                        </application>
-                    </applications>
-                    <valuemap/>
-                    <logtimefmt/>
-                    <preprocessing/>
-                    <jmx_endpoint/>
-                    <master_item/>
-                </item>
-                <item>
-                    <name>Interrupts per second</name>
-                    <type>0</type>
-                    <snmp_community/>
-                    <snmp_oid/>
-                    <key>system.cpu.intr</key>
-                    <delay>1m</delay>
-                    <history>1w</history>
-                    <trends>365d</trends>
-                    <status>0</status>
-                    <value_type>3</value_type>
-                    <allowed_hosts/>
-                    <units>ips</units>
-                    <snmpv3_contextname/>
-                    <snmpv3_securityname/>
-                    <snmpv3_securitylevel>0</snmpv3_securitylevel>
-                    <snmpv3_authprotocol>0</snmpv3_authprotocol>
-                    <snmpv3_authpassphrase/>
-                    <snmpv3_privprotocol>0</snmpv3_privprotocol>
-                    <snmpv3_privpassphrase/>
-                    <params/>
-                    <ipmi_sensor/>
-                    <authtype>0</authtype>
-                    <username/>
-                    <password/>
-                    <publickey/>
-                    <privatekey/>
-                    <port/>
-                    <description/>
-                    <inventory_link>0</inventory_link>
-                    <applications>
-                        <application>
-                            <name>CPU</name>
-                        </application>
-                        <application>
-                            <name>Performance</name>
-                        </application>
-                    </applications>
-                    <valuemap/>
-                    <logtimefmt/>
-                    <preprocessing>
-                        <step>
-                            <type>10</type>
-                            <params/>
-                        </step>
-                    </preprocessing>
-                    <jmx_endpoint/>
-                    <master_item/>
-                </item>
-                <item>
-                    <name>Context switches per second</name>
-                    <type>0</type>
-                    <snmp_community/>
-                    <snmp_oid/>
-                    <key>system.cpu.switches</key>
-                    <delay>1m</delay>
-                    <history>1w</history>
-                    <trends>365d</trends>
-                    <status>0</status>
-                    <value_type>3</value_type>
-                    <allowed_hosts/>
-                    <units>sps</units>
-                    <snmpv3_contextname/>
-                    <snmpv3_securityname/>
-                    <snmpv3_securitylevel>0</snmpv3_securitylevel>
-                    <snmpv3_authprotocol>0</snmpv3_authprotocol>
-                    <snmpv3_authpassphrase/>
-                    <snmpv3_privprotocol>0</snmpv3_privprotocol>
-                    <snmpv3_privpassphrase/>
-                    <params/>
-                    <ipmi_sensor/>
-                    <authtype>0</authtype>
-                    <username/>
-                    <password/>
-                    <publickey/>
-                    <privatekey/>
-                    <port/>
-                    <description/>
-                    <inventory_link>0</inventory_link>
-                    <applications>
-                        <application>
-                            <name>CPU</name>
-                        </application>
-                        <application>
-                            <name>Performance</name>
-                        </application>
-                    </applications>
-                    <valuemap/>
-                    <logtimefmt/>
-                    <preprocessing>
-                        <step>
-                            <type>10</type>
-                            <params/>
-                        </step>
-                    </preprocessing>
-                    <jmx_endpoint/>
-                    <master_item/>
-                </item>
-                <item>
-                    <name>CPU $2 time</name>
-                    <type>0</type>
-                    <snmp_community/>
-                    <snmp_oid/>
-                    <key>system.cpu.util[,idle]</key>
-                    <delay>1m</delay>
-                    <history>1w</history>
-                    <trends>365d</trends>
-                    <status>0</status>
-                    <value_type>0</value_type>
-                    <allowed_hosts/>
-                    <units>%</units>
-                    <snmpv3_contextname/>
-                    <snmpv3_securityname/>
-                    <snmpv3_securitylevel>0</snmpv3_securitylevel>
-                    <snmpv3_authprotocol>0</snmpv3_authprotocol>
-                    <snmpv3_authpassphrase/>
-                    <snmpv3_privprotocol>0</snmpv3_privprotocol>
-                    <snmpv3_privpassphrase/>
-                    <params/>
-                    <ipmi_sensor/>
-                    <authtype>0</authtype>
-                    <username/>
-                    <password/>
-                    <publickey/>
-                    <privatekey/>
-                    <port/>
-                    <description>The time the CPU has spent doing nothing.</description>
-                    <inventory_link>0</inventory_link>
-                    <applications>
-                        <application>
-                            <name>CPU</name>
-                        </application>
-                        <application>
-                            <name>Performance</name>
-                        </application>
-                    </applications>
-                    <valuemap/>
-                    <logtimefmt/>
-                    <preprocessing/>
-                    <jmx_endpoint/>
-                    <master_item/>
-                </item>
-                <item>
-                    <name>CPU $2 time</name>
-                    <type>0</type>
-                    <snmp_community/>
-                    <snmp_oid/>
-                    <key>system.cpu.util[,interrupt]</key>
-                    <delay>1m</delay>
-                    <history>1w</history>
-                    <trends>365d</trends>
-                    <status>0</status>
-                    <value_type>0</value_type>
-                    <allowed_hosts/>
-                    <units>%</units>
-                    <snmpv3_contextname/>
-                    <snmpv3_securityname/>
-                    <snmpv3_securitylevel>0</snmpv3_securitylevel>
-                    <snmpv3_authprotocol>0</snmpv3_authprotocol>
-                    <snmpv3_authpassphrase/>
-                    <snmpv3_privprotocol>0</snmpv3_privprotocol>
-                    <snmpv3_privpassphrase/>
-                    <params/>
-                    <ipmi_sensor/>
-                    <authtype>0</authtype>
-                    <username/>
-                    <password/>
-                    <publickey/>
-                    <privatekey/>
-                    <port/>
-                    <description>The amount of time the CPU has been servicing hardware interrupts.</description>
-                    <inventory_link>0</inventory_link>
-                    <applications>
-                        <application>
-                            <name>CPU</name>
-                        </application>
-                        <application>
-                            <name>Performance</name>
-                        </application>
-                    </applications>
-                    <valuemap/>
-                    <logtimefmt/>
-                    <preprocessing/>
-                    <jmx_endpoint/>
-                    <master_item/>
-                </item>
-                <item>
-                    <name>CPU $2 time</name>
-                    <type>0</type>
-                    <snmp_community/>
-                    <snmp_oid/>
-                    <key>system.cpu.util[,iowait]</key>
-                    <delay>1m</delay>
-                    <history>1w</history>
-                    <trends>365d</trends>
-                    <status>0</status>
-                    <value_type>0</value_type>
-                    <allowed_hosts/>
-                    <units>%</units>
-                    <snmpv3_contextname/>
-                    <snmpv3_securityname/>
-                    <snmpv3_securitylevel>0</snmpv3_securitylevel>
-                    <snmpv3_authprotocol>0</snmpv3_authprotocol>
-                    <snmpv3_authpassphrase/>
-                    <snmpv3_privprotocol>0</snmpv3_privprotocol>
-                    <snmpv3_privpassphrase/>
-                    <params/>
-                    <ipmi_sensor/>
-                    <authtype>0</authtype>
-                    <username/>
-                    <password/>
-                    <publickey/>
-                    <privatekey/>
-                    <port/>
-                    <description>Amount of time the CPU has been waiting for I/O to complete.</description>
-                    <inventory_link>0</inventory_link>
-                    <applications>
-                        <application>
-                            <name>CPU</name>
-                        </application>
-                        <application>
-                            <name>Performance</name>
-                        </application>
-                    </applications>
-                    <valuemap/>
-                    <logtimefmt/>
-                    <preprocessing/>
-                    <jmx_endpoint/>
-                    <master_item/>
-                </item>
-                <item>
-                    <name>CPU $2 time</name>
-                    <type>0</type>
-                    <snmp_community/>
-                    <snmp_oid/>
-                    <key>system.cpu.util[,nice]</key>
-                    <delay>1m</delay>
-                    <history>1w</history>
-                    <trends>365d</trends>
-                    <status>0</status>
-                    <value_type>0</value_type>
-                    <allowed_hosts/>
-                    <units>%</units>
-                    <snmpv3_contextname/>
-                    <snmpv3_securityname/>
-                    <snmpv3_securitylevel>0</snmpv3_securitylevel>
-                    <snmpv3_authprotocol>0</snmpv3_authprotocol>
-                    <snmpv3_authpassphrase/>
-                    <snmpv3_privprotocol>0</snmpv3_privprotocol>
-                    <snmpv3_privpassphrase/>
-                    <params/>
-                    <ipmi_sensor/>
-                    <authtype>0</authtype>
-                    <username/>
-                    <password/>
-                    <publickey/>
-                    <privatekey/>
-                    <port/>
-                    <description>The time the CPU has spent running users' processes that have been niced.</description>
-                    <inventory_link>0</inventory_link>
-                    <applications>
-                        <application>
-                            <name>CPU</name>
-                        </application>
-                        <application>
-                            <name>Performance</name>
-                        </application>
-                    </applications>
-                    <valuemap/>
-                    <logtimefmt/>
-                    <preprocessing/>
-                    <jmx_endpoint/>
-                    <master_item/>
-                </item>
-                <item>
-                    <name>CPU $2 time</name>
-                    <type>0</type>
-                    <snmp_community/>
-                    <snmp_oid/>
-                    <key>system.cpu.util[,softirq]</key>
-                    <delay>1m</delay>
-                    <history>1w</history>
-                    <trends>365d</trends>
-                    <status>0</status>
-                    <value_type>0</value_type>
-                    <allowed_hosts/>
-                    <units>%</units>
-                    <snmpv3_contextname/>
-                    <snmpv3_securityname/>
-                    <snmpv3_securitylevel>0</snmpv3_securitylevel>
-                    <snmpv3_authprotocol>0</snmpv3_authprotocol>
-                    <snmpv3_authpassphrase/>
-                    <snmpv3_privprotocol>0</snmpv3_privprotocol>
-                    <snmpv3_privpassphrase/>
-                    <params/>
-                    <ipmi_sensor/>
-                    <authtype>0</authtype>
-                    <username/>
-                    <password/>
-                    <publickey/>
-                    <privatekey/>
-                    <port/>
-                    <description>The amount of time the CPU has been servicing software interrupts.</description>
-                    <inventory_link>0</inventory_link>
-                    <applications>
-                        <application>
-                            <name>CPU</name>
-                        </application>
-                        <application>
-                            <name>Performance</name>
-                        </application>
-                    </applications>
-                    <valuemap/>
-                    <logtimefmt/>
-                    <preprocessing/>
-                    <jmx_endpoint/>
-                    <master_item/>
-                </item>
-                <item>
-                    <name>CPU $2 time</name>
-                    <type>0</type>
-                    <snmp_community/>
-                    <snmp_oid/>
-                    <key>system.cpu.util[,steal]</key>
-                    <delay>1m</delay>
-                    <history>1w</history>
-                    <trends>365d</trends>
-                    <status>0</status>
-                    <value_type>0</value_type>
-                    <allowed_hosts/>
-                    <units>%</units>
-                    <snmpv3_contextname/>
-                    <snmpv3_securityname/>
-                    <snmpv3_securitylevel>0</snmpv3_securitylevel>
-                    <snmpv3_authprotocol>0</snmpv3_authprotocol>
-                    <snmpv3_authpassphrase/>
-                    <snmpv3_privprotocol>0</snmpv3_privprotocol>
-                    <snmpv3_privpassphrase/>
-                    <params/>
-                    <ipmi_sensor/>
-                    <authtype>0</authtype>
-                    <username/>
-                    <password/>
-                    <publickey/>
-                    <privatekey/>
-                    <port/>
-                    <description>The amount of CPU 'stolen' from this virtual machine by the hypervisor for other tasks (such as running another virtual machine).</description>
-                    <inventory_link>0</inventory_link>
-                    <applications>
-                        <application>
-                            <name>CPU</name>
-                        </application>
-                        <application>
-                            <name>Performance</name>
-                        </application>
-                    </applications>
-                    <valuemap/>
-                    <logtimefmt/>
-                    <preprocessing/>
-                    <jmx_endpoint/>
-                    <master_item/>
-                </item>
-                <item>
-                    <name>CPU $2 time</name>
-                    <type>0</type>
-                    <snmp_community/>
-                    <snmp_oid/>
-                    <key>system.cpu.util[,system]</key>
-                    <delay>1m</delay>
-                    <history>1w</history>
-                    <trends>365d</trends>
-                    <status>0</status>
-                    <value_type>0</value_type>
-                    <allowed_hosts/>
-                    <units>%</units>
-                    <snmpv3_contextname/>
-                    <snmpv3_securityname/>
-                    <snmpv3_securitylevel>0</snmpv3_securitylevel>
-                    <snmpv3_authprotocol>0</snmpv3_authprotocol>
-                    <snmpv3_authpassphrase/>
-                    <snmpv3_privprotocol>0</snmpv3_privprotocol>
-                    <snmpv3_privpassphrase/>
-                    <params/>
-                    <ipmi_sensor/>
-                    <authtype>0</authtype>
-                    <username/>
-                    <password/>
-                    <publickey/>
-                    <privatekey/>
-                    <port/>
-                    <description>The time the CPU has spent running the kernel and its processes.</description>
-                    <inventory_link>0</inventory_link>
-                    <applications>
-                        <application>
-                            <name>CPU</name>
-                        </application>
-                        <application>
-                            <name>Performance</name>
-                        </application>
-                    </applications>
-                    <valuemap/>
-                    <logtimefmt/>
-                    <preprocessing/>
-                    <jmx_endpoint/>
-                    <master_item/>
-                </item>
-                <item>
-                    <name>CPU $2 time</name>
-                    <type>0</type>
-                    <snmp_community/>
-                    <snmp_oid/>
-                    <key>system.cpu.util[,user]</key>
-                    <delay>1m</delay>
-                    <history>1w</history>
-                    <trends>365d</trends>
-                    <status>0</status>
-                    <value_type>0</value_type>
-                    <allowed_hosts/>
-                    <units>%</units>
-                    <snmpv3_contextname/>
-                    <snmpv3_securityname/>
-                    <snmpv3_securitylevel>0</snmpv3_securitylevel>
-                    <snmpv3_authprotocol>0</snmpv3_authprotocol>
-                    <snmpv3_authpassphrase/>
-                    <snmpv3_privprotocol>0</snmpv3_privprotocol>
-                    <snmpv3_privpassphrase/>
-                    <params/>
-                    <ipmi_sensor/>
-                    <authtype>0</authtype>
-                    <username/>
-                    <password/>
-                    <publickey/>
-                    <privatekey/>
-                    <port/>
-                    <description>The time the CPU has spent running users' processes that are not niced.</description>
-                    <inventory_link>0</inventory_link>
-                    <applications>
-                        <application>
-                            <name>CPU</name>
-                        </application>
-                        <application>
-                            <name>Performance</name>
-                        </application>
-                    </applications>
-                    <valuemap/>
-                    <logtimefmt/>
-                    <preprocessing/>
-                    <jmx_endpoint/>
-                    <master_item/>
-                </item>
-                <item>
-                    <name>Host name</name>
-                    <type>0</type>
-                    <snmp_community/>
-                    <snmp_oid/>
-                    <key>system.hostname</key>
-                    <delay>1h</delay>
-                    <history>1w</history>
-                    <trends>0</trends>
-                    <status>0</status>
-                    <value_type>1</value_type>
-                    <allowed_hosts/>
-                    <units/>
-                    <snmpv3_contextname/>
-                    <snmpv3_securityname/>
-                    <snmpv3_securitylevel>0</snmpv3_securitylevel>
-                    <snmpv3_authprotocol>0</snmpv3_authprotocol>
-                    <snmpv3_authpassphrase/>
-                    <snmpv3_privprotocol>0</snmpv3_privprotocol>
-                    <snmpv3_privpassphrase/>
-                    <params/>
-                    <ipmi_sensor/>
-                    <authtype>0</authtype>
-                    <username/>
-                    <password/>
-                    <publickey/>
-                    <privatekey/>
-                    <port/>
-                    <description>System host name.</description>
-                    <inventory_link>3</inventory_link>
-                    <applications>
-                        <application>
-                            <name>General</name>
-                        </application>
-                        <application>
-                            <name>OS</name>
-                        </application>
-                    </applications>
-                    <valuemap/>
-                    <logtimefmt/>
-                    <preprocessing/>
-                    <jmx_endpoint/>
-                    <master_item/>
-                </item>
-                <item>
-                    <name>Host local time</name>
-                    <type>0</type>
-                    <snmp_community/>
-                    <snmp_oid/>
-                    <key>system.localtime</key>
-                    <delay>1m</delay>
-                    <history>1w</history>
-                    <trends>365d</trends>
-                    <status>0</status>
-                    <value_type>3</value_type>
-                    <allowed_hosts/>
-                    <units>unixtime</units>
-                    <snmpv3_contextname/>
-                    <snmpv3_securityname/>
-                    <snmpv3_securitylevel>0</snmpv3_securitylevel>
-                    <snmpv3_authprotocol>0</snmpv3_authprotocol>
-                    <snmpv3_authpassphrase/>
-                    <snmpv3_privprotocol>0</snmpv3_privprotocol>
-                    <snmpv3_privpassphrase/>
-                    <params/>
-                    <ipmi_sensor/>
-                    <authtype>0</authtype>
-                    <username/>
-                    <password/>
-                    <publickey/>
-                    <privatekey/>
-                    <port/>
-                    <description/>
-                    <inventory_link>0</inventory_link>
-                    <applications>
-                        <application>
-                            <name>General</name>
-                        </application>
-                        <application>
-                            <name>OS</name>
-                        </application>
-                    </applications>
-                    <valuemap/>
-                    <logtimefmt/>
-                    <preprocessing/>
-                    <jmx_endpoint/>
-                    <master_item/>
-                </item>
-                <item>
-                    <name>System information</name>
-                    <type>0</type>
-                    <snmp_community/>
-                    <snmp_oid/>
-                    <key>system.uname</key>
-                    <delay>1h</delay>
-                    <history>1w</history>
-                    <trends>0</trends>
-                    <status>0</status>
-                    <value_type>1</value_type>
-                    <allowed_hosts/>
-                    <units/>
-                    <snmpv3_contextname/>
-                    <snmpv3_securityname/>
-                    <snmpv3_securitylevel>0</snmpv3_securitylevel>
-                    <snmpv3_authprotocol>0</snmpv3_authprotocol>
-                    <snmpv3_authpassphrase/>
-                    <snmpv3_privprotocol>0</snmpv3_privprotocol>
-                    <snmpv3_privpassphrase/>
-                    <params/>
-                    <ipmi_sensor/>
-                    <authtype>0</authtype>
-                    <username/>
-                    <password/>
-                    <publickey/>
-                    <privatekey/>
-                    <port/>
-                    <description>The information as normally returned by 'uname -a'.</description>
-                    <inventory_link>5</inventory_link>
-                    <applications>
-                        <application>
-                            <name>General</name>
-                        </application>
-                        <application>
-                            <name>OS</name>
-                        </application>
-                    </applications>
-                    <valuemap/>
-                    <logtimefmt/>
-                    <preprocessing/>
-                    <jmx_endpoint/>
-                    <master_item/>
-                </item>
-                <item>
-                    <name>System uptime</name>
-                    <type>0</type>
-                    <snmp_community/>
-                    <snmp_oid/>
-                    <key>system.uptime</key>
-                    <delay>10m</delay>
-                    <history>1w</history>
-                    <trends>365d</trends>
-                    <status>0</status>
-                    <value_type>3</value_type>
-                    <allowed_hosts/>
-                    <units>uptime</units>
-                    <snmpv3_contextname/>
-                    <snmpv3_securityname/>
-                    <snmpv3_securitylevel>0</snmpv3_securitylevel>
-                    <snmpv3_authprotocol>0</snmpv3_authprotocol>
-                    <snmpv3_authpassphrase/>
-                    <snmpv3_privprotocol>0</snmpv3_privprotocol>
-                    <snmpv3_privpassphrase/>
-                    <params/>
-                    <ipmi_sensor/>
-                    <authtype>0</authtype>
-                    <username/>
-                    <password/>
-                    <publickey/>
-                    <privatekey/>
-                    <port/>
-                    <description/>
-                    <inventory_link>0</inventory_link>
-                    <applications>
-                        <application>
-                            <name>General</name>
-                        </application>
-                        <application>
-                            <name>OS</name>
-                        </application>
-                    </applications>
-                    <valuemap/>
-                    <logtimefmt/>
-                    <preprocessing/>
-                    <jmx_endpoint/>
-                    <master_item/>
-                </item>
-                <item>
-                    <name>Number of logged in users</name>
-                    <type>0</type>
-                    <snmp_community/>
-                    <snmp_oid/>
-                    <key>system.users.num</key>
-                    <delay>1m</delay>
-                    <history>1w</history>
-                    <trends>365d</trends>
-                    <status>0</status>
-                    <value_type>3</value_type>
-                    <allowed_hosts/>
-                    <units/>
-                    <snmpv3_contextname/>
-                    <snmpv3_securityname/>
-                    <snmpv3_securitylevel>0</snmpv3_securitylevel>
-                    <snmpv3_authprotocol>0</snmpv3_authprotocol>
-                    <snmpv3_authpassphrase/>
-                    <snmpv3_privprotocol>0</snmpv3_privprotocol>
-                    <snmpv3_privpassphrase/>
-                    <params/>
-                    <ipmi_sensor/>
-                    <authtype>0</authtype>
-                    <username/>
-                    <password/>
-                    <publickey/>
-                    <privatekey/>
-                    <port/>
-                    <description>Number of users who are currently logged in.</description>
-                    <inventory_link>0</inventory_link>
-                    <applications>
-                        <application>
-                            <name>OS</name>
-                        </application>
-                        <application>
-                            <name>Security</name>
-                        </application>
-                    </applications>
-                    <valuemap/>
-                    <logtimefmt/>
-                    <preprocessing/>
-                    <jmx_endpoint/>
-                    <master_item/>
-                </item>
-                <item>
-                    <name>Checksum of $1</name>
-                    <type>0</type>
-                    <snmp_community/>
-                    <snmp_oid/>
-                    <key>vfs.file.cksum[/etc/passwd]</key>
-                    <delay>1h</delay>
-                    <history>1w</history>
-                    <trends>365d</trends>
-                    <status>0</status>
-                    <value_type>3</value_type>
-                    <allowed_hosts/>
-                    <units/>
-                    <snmpv3_contextname/>
-                    <snmpv3_securityname/>
-                    <snmpv3_securitylevel>0</snmpv3_securitylevel>
-                    <snmpv3_authprotocol>0</snmpv3_authprotocol>
-                    <snmpv3_authpassphrase/>
-                    <snmpv3_privprotocol>0</snmpv3_privprotocol>
-                    <snmpv3_privpassphrase/>
-                    <params/>
-                    <ipmi_sensor/>
-                    <authtype>0</authtype>
-                    <username/>
-                    <password/>
-                    <publickey/>
-                    <privatekey/>
-                    <port/>
-                    <description/>
-                    <inventory_link>0</inventory_link>
-                    <applications>
-                        <application>
-                            <name>Security</name>
-                        </application>
-                    </applications>
-                    <valuemap/>
-                    <logtimefmt/>
-                    <preprocessing/>
-                    <jmx_endpoint/>
-                    <master_item/>
                 </item>
             </items>
-            <discovery_rules>
-                <discovery_rule>
-                    <name>Network interface discovery</name>
-                    <type>0</type>
-                    <snmp_community/>
-                    <snmp_oid/>
-                    <key>net.if.discovery</key>
-                    <delay>1h</delay>
-                    <status>0</status>
-                    <allowed_hosts/>
-                    <snmpv3_contextname/>
-                    <snmpv3_securityname/>
-                    <snmpv3_securitylevel>0</snmpv3_securitylevel>
-                    <snmpv3_authprotocol>0</snmpv3_authprotocol>
-                    <snmpv3_authpassphrase/>
-                    <snmpv3_privprotocol>0</snmpv3_privprotocol>
-                    <snmpv3_privpassphrase/>
-                    <params/>
-                    <ipmi_sensor/>
-                    <authtype>0</authtype>
-                    <username/>
-                    <password/>
-                    <publickey/>
-                    <privatekey/>
-                    <port/>
-                    <filter>
-                        <evaltype>0</evaltype>
-                        <formula/>
-                        <conditions>
-                            <condition>
-                                <macro>{#IFNAME}</macro>
-                                <value>@Network interfaces for discovery</value>
-                                <operator>8</operator>
-                                <formulaid>A</formulaid>
-                            </condition>
-                        </conditions>
-                    </filter>
-                    <lifetime>30d</lifetime>
-                    <description>Discovery of network interfaces as defined in global regular expression &quot;Network interfaces for discovery&quot;.</description>
-                    <item_prototypes>
-                        <item_prototype>
-                            <name>Incoming network traffic on $1</name>
-                            <type>0</type>
-                            <snmp_community/>
-                            <snmp_oid/>
-                            <key>net.if.in[{#IFNAME}]</key>
-                            <delay>1m</delay>
-                            <history>1w</history>
-                            <trends>365d</trends>
-                            <status>0</status>
-                            <value_type>3</value_type>
-                            <allowed_hosts/>
-                            <units>bps</units>
-                            <snmpv3_contextname/>
-                            <snmpv3_securityname/>
-                            <snmpv3_securitylevel>0</snmpv3_securitylevel>
-                            <snmpv3_authprotocol>0</snmpv3_authprotocol>
-                            <snmpv3_authpassphrase/>
-                            <snmpv3_privprotocol>0</snmpv3_privprotocol>
-                            <snmpv3_privpassphrase/>
-                            <params/>
-                            <ipmi_sensor/>
-                            <authtype>0</authtype>
-                            <username/>
-                            <password/>
-                            <publickey/>
-                            <privatekey/>
-                            <port/>
-                            <description/>
-                            <inventory_link>0</inventory_link>
-                            <applications>
-                                <application>
-                                    <name>Network interfaces</name>
-                                </application>
-                            </applications>
-                            <valuemap/>
-                            <logtimefmt/>
-                            <preprocessing>
-                                <step>
-                                    <type>10</type>
-                                    <params/>
-                                </step>
-                                <step>
-                                    <type>1</type>
-                                    <params>8</params>
-                                </step>
-                            </preprocessing>
-                            <jmx_endpoint/>
-                            <application_prototypes/>
-                            <master_item_prototype/>
-                        </item_prototype>
-                        <item_prototype>
-                            <name>Outgoing network traffic on $1</name>
-                            <type>0</type>
-                            <snmp_community/>
-                            <snmp_oid/>
-                            <key>net.if.out[{#IFNAME}]</key>
-                            <delay>1m</delay>
-                            <history>1w</history>
-                            <trends>365d</trends>
-                            <status>0</status>
-                            <value_type>3</value_type>
-                            <allowed_hosts/>
-                            <units>bps</units>
-                            <snmpv3_contextname/>
-                            <snmpv3_securityname/>
-                            <snmpv3_securitylevel>0</snmpv3_securitylevel>
-                            <snmpv3_authprotocol>0</snmpv3_authprotocol>
-                            <snmpv3_authpassphrase/>
-                            <snmpv3_privprotocol>0</snmpv3_privprotocol>
-                            <snmpv3_privpassphrase/>
-                            <params/>
-                            <ipmi_sensor/>
-                            <authtype>0</authtype>
-                            <username/>
-                            <password/>
-                            <publickey/>
-                            <privatekey/>
-                            <port/>
-                            <description/>
-                            <inventory_link>0</inventory_link>
-                            <applications>
-                                <application>
-                                    <name>Network interfaces</name>
-                                </application>
-                            </applications>
-                            <valuemap/>
-                            <logtimefmt/>
-                            <preprocessing>
-                                <step>
-                                    <type>10</type>
-                                    <params/>
-                                </step>
-                                <step>
-                                    <type>1</type>
-                                    <params>8</params>
-                                </step>
-                            </preprocessing>
-                            <jmx_endpoint/>
-                            <application_prototypes/>
-                            <master_item_prototype/>
-                        </item_prototype>
-                    </item_prototypes>
-                    <trigger_prototypes/>
-                    <graph_prototypes>
-                        <graph_prototype>
-                            <name>Network traffic on {#IFNAME}</name>
-                            <width>900</width>
-                            <height>200</height>
-                            <yaxismin>0.0000</yaxismin>
-                            <yaxismax>100.0000</yaxismax>
-                            <show_work_period>1</show_work_period>
-                            <show_triggers>1</show_triggers>
-                            <type>0</type>
-                            <show_legend>1</show_legend>
-                            <show_3d>0</show_3d>
-                            <percent_left>0.0000</percent_left>
-                            <percent_right>0.0000</percent_right>
-                            <ymin_type_1>1</ymin_type_1>
-                            <ymax_type_1>0</ymax_type_1>
-                            <ymin_item_1>0</ymin_item_1>
-                            <ymax_item_1>0</ymax_item_1>
-                            <graph_items>
-                                <graph_item>
-                                    <sortorder>0</sortorder>
-                                    <drawtype>5</drawtype>
-                                    <color>00AA00</color>
-                                    <yaxisside>0</yaxisside>
-                                    <calc_fnc>2</calc_fnc>
-                                    <type>0</type>
-                                    <item>
-                                        <host>Template Linux Container</host>
-                                        <key>net.if.in[{#IFNAME}]</key>
-                                    </item>
-                                </graph_item>
-                                <graph_item>
-                                    <sortorder>1</sortorder>
-                                    <drawtype>5</drawtype>
-                                    <color>3333FF</color>
-                                    <yaxisside>0</yaxisside>
-                                    <calc_fnc>2</calc_fnc>
-                                    <type>0</type>
-                                    <item>
-                                        <host>Template Linux Container</host>
-                                        <key>net.if.out[{#IFNAME}]</key>
-                                    </item>
-                                </graph_item>
-                            </graph_items>
-                        </graph_prototype>
-                    </graph_prototypes>
-                    <host_prototypes/>
-                    <jmx_endpoint/>
-                </discovery_rule>
-                <discovery_rule>
-                    <name>Mounted filesystem discovery</name>
-                    <type>0</type>
-                    <snmp_community/>
-                    <snmp_oid/>
-                    <key>vfs.fs.discovery</key>
-                    <delay>1h</delay>
-                    <status>0</status>
-                    <allowed_hosts/>
-                    <snmpv3_contextname/>
-                    <snmpv3_securityname/>
-                    <snmpv3_securitylevel>0</snmpv3_securitylevel>
-                    <snmpv3_authprotocol>0</snmpv3_authprotocol>
-                    <snmpv3_authpassphrase/>
-                    <snmpv3_privprotocol>0</snmpv3_privprotocol>
-                    <snmpv3_privpassphrase/>
-                    <params/>
-                    <ipmi_sensor/>
-                    <authtype>0</authtype>
-                    <username/>
-                    <password/>
-                    <publickey/>
-                    <privatekey/>
-                    <port/>
-                    <filter>
-                        <evaltype>0</evaltype>
-                        <formula/>
-                        <conditions>
-                            <condition>
-                                <macro>{#FSTYPE}</macro>
-                                <value>@File systems for discovery</value>
-                                <operator>8</operator>
-                                <formulaid>A</formulaid>
-                            </condition>
-                        </conditions>
-                    </filter>
-                    <lifetime>30d</lifetime>
-                    <description>Discovery of file systems of different types as defined in global regular expression &quot;File systems for discovery&quot;.</description>
-                    <item_prototypes>
-                        <item_prototype>
-                            <name>Free inodes on $1 (percentage)</name>
-                            <type>0</type>
-                            <snmp_community/>
-                            <snmp_oid/>
-                            <key>vfs.fs.inode[{#FSNAME},pfree]</key>
-                            <delay>1m</delay>
-                            <history>1w</history>
-                            <trends>365d</trends>
-                            <status>0</status>
-                            <value_type>0</value_type>
-                            <allowed_hosts/>
-                            <units>%</units>
-                            <snmpv3_contextname/>
-                            <snmpv3_securityname/>
-                            <snmpv3_securitylevel>0</snmpv3_securitylevel>
-                            <snmpv3_authprotocol>0</snmpv3_authprotocol>
-                            <snmpv3_authpassphrase/>
-                            <snmpv3_privprotocol>0</snmpv3_privprotocol>
-                            <snmpv3_privpassphrase/>
-                            <params/>
-                            <ipmi_sensor/>
-                            <authtype>0</authtype>
-                            <username/>
-                            <password/>
-                            <publickey/>
-                            <privatekey/>
-                            <port/>
-                            <description/>
-                            <inventory_link>0</inventory_link>
-                            <applications>
-                                <application>
-                                    <name>Filesystems</name>
-                                </application>
-                            </applications>
-                            <valuemap/>
-                            <logtimefmt/>
-                            <preprocessing/>
-                            <jmx_endpoint/>
-                            <application_prototypes/>
-                            <master_item_prototype/>
-                        </item_prototype>
-                        <item_prototype>
-                            <name>Free disk space on $1</name>
-                            <type>0</type>
-                            <snmp_community/>
-                            <snmp_oid/>
-                            <key>vfs.fs.size[{#FSNAME},free]</key>
-                            <delay>1m</delay>
-                            <history>1w</history>
-                            <trends>365d</trends>
-                            <status>0</status>
-                            <value_type>3</value_type>
-                            <allowed_hosts/>
-                            <units>B</units>
-                            <snmpv3_contextname/>
-                            <snmpv3_securityname/>
-                            <snmpv3_securitylevel>0</snmpv3_securitylevel>
-                            <snmpv3_authprotocol>0</snmpv3_authprotocol>
-                            <snmpv3_authpassphrase/>
-                            <snmpv3_privprotocol>0</snmpv3_privprotocol>
-                            <snmpv3_privpassphrase/>
-                            <params/>
-                            <ipmi_sensor/>
-                            <authtype>0</authtype>
-                            <username/>
-                            <password/>
-                            <publickey/>
-                            <privatekey/>
-                            <port/>
-                            <description/>
-                            <inventory_link>0</inventory_link>
-                            <applications>
-                                <application>
-                                    <name>Filesystems</name>
-                                </application>
-                            </applications>
-                            <valuemap/>
-                            <logtimefmt/>
-                            <preprocessing/>
-                            <jmx_endpoint/>
-                            <application_prototypes/>
-                            <master_item_prototype/>
-                        </item_prototype>
-                        <item_prototype>
-                            <name>Free disk space on $1 (percentage)</name>
-                            <type>0</type>
-                            <snmp_community/>
-                            <snmp_oid/>
-                            <key>vfs.fs.size[{#FSNAME},pfree]</key>
-                            <delay>1m</delay>
-                            <history>1w</history>
-                            <trends>365d</trends>
-                            <status>0</status>
-                            <value_type>0</value_type>
-                            <allowed_hosts/>
-                            <units>%</units>
-                            <snmpv3_contextname/>
-                            <snmpv3_securityname/>
-                            <snmpv3_securitylevel>0</snmpv3_securitylevel>
-                            <snmpv3_authprotocol>0</snmpv3_authprotocol>
-                            <snmpv3_authpassphrase/>
-                            <snmpv3_privprotocol>0</snmpv3_privprotocol>
-                            <snmpv3_privpassphrase/>
-                            <params/>
-                            <ipmi_sensor/>
-                            <authtype>0</authtype>
-                            <username/>
-                            <password/>
-                            <publickey/>
-                            <privatekey/>
-                            <port/>
-                            <description/>
-                            <inventory_link>0</inventory_link>
-                            <applications>
-                                <application>
-                                    <name>Filesystems</name>
-                                </application>
-                            </applications>
-                            <valuemap/>
-                            <logtimefmt/>
-                            <preprocessing/>
-                            <jmx_endpoint/>
-                            <application_prototypes/>
-                            <master_item_prototype/>
-                        </item_prototype>
-                        <item_prototype>
-                            <name>Total disk space on $1</name>
-                            <type>0</type>
-                            <snmp_community/>
-                            <snmp_oid/>
-                            <key>vfs.fs.size[{#FSNAME},total]</key>
-                            <delay>1h</delay>
-                            <history>1w</history>
-                            <trends>365d</trends>
-                            <status>0</status>
-                            <value_type>3</value_type>
-                            <allowed_hosts/>
-                            <units>B</units>
-                            <snmpv3_contextname/>
-                            <snmpv3_securityname/>
-                            <snmpv3_securitylevel>0</snmpv3_securitylevel>
-                            <snmpv3_authprotocol>0</snmpv3_authprotocol>
-                            <snmpv3_authpassphrase/>
-                            <snmpv3_privprotocol>0</snmpv3_privprotocol>
-                            <snmpv3_privpassphrase/>
-                            <params/>
-                            <ipmi_sensor/>
-                            <authtype>0</authtype>
-                            <username/>
-                            <password/>
-                            <publickey/>
-                            <privatekey/>
-                            <port/>
-                            <description/>
-                            <inventory_link>0</inventory_link>
-                            <applications>
-                                <application>
-                                    <name>Filesystems</name>
-                                </application>
-                            </applications>
-                            <valuemap/>
-                            <logtimefmt/>
-                            <preprocessing/>
-                            <jmx_endpoint/>
-                            <application_prototypes/>
-                            <master_item_prototype/>
-                        </item_prototype>
-                        <item_prototype>
-                            <name>Used disk space on $1</name>
-                            <type>0</type>
-                            <snmp_community/>
-                            <snmp_oid/>
-                            <key>vfs.fs.size[{#FSNAME},used]</key>
-                            <delay>1m</delay>
-                            <history>1w</history>
-                            <trends>365d</trends>
-                            <status>0</status>
-                            <value_type>3</value_type>
-                            <allowed_hosts/>
-                            <units>B</units>
-                            <snmpv3_contextname/>
-                            <snmpv3_securityname/>
-                            <snmpv3_securitylevel>0</snmpv3_securitylevel>
-                            <snmpv3_authprotocol>0</snmpv3_authprotocol>
-                            <snmpv3_authpassphrase/>
-                            <snmpv3_privprotocol>0</snmpv3_privprotocol>
-                            <snmpv3_privpassphrase/>
-                            <params/>
-                            <ipmi_sensor/>
-                            <authtype>0</authtype>
-                            <username/>
-                            <password/>
-                            <publickey/>
-                            <privatekey/>
-                            <port/>
-                            <description/>
-                            <inventory_link>0</inventory_link>
-                            <applications>
-                                <application>
-                                    <name>Filesystems</name>
-                                </application>
-                            </applications>
-                            <valuemap/>
-                            <logtimefmt/>
-                            <preprocessing/>
-                            <jmx_endpoint/>
-                            <application_prototypes/>
-                            <master_item_prototype/>
-                        </item_prototype>
-                    </item_prototypes>
-                    <trigger_prototypes>
-                        <trigger_prototype>
-                            <expression>{Template Linux Container:vfs.fs.size[{#FSNAME},pfree].last(0)}&lt;20</expression>
-                            <recovery_mode>0</recovery_mode>
-                            <recovery_expression/>
-                            <name>Free disk space is less than 20% on volume {#FSNAME}</name>
-                            <correlation_mode>0</correlation_mode>
-                            <correlation_tag/>
-                            <url/>
-                            <status>0</status>
-                            <priority>2</priority>
-                            <description/>
-                            <type>0</type>
-                            <manual_close>0</manual_close>
-                            <dependencies/>
-                            <tags/>
-                        </trigger_prototype>
-                        <trigger_prototype>
-                            <expression>{Template Linux Container:vfs.fs.inode[{#FSNAME},pfree].last(0)}&lt;20</expression>
-                            <recovery_mode>0</recovery_mode>
-                            <recovery_expression/>
-                            <name>Free inodes is less than 20% on volume {#FSNAME}</name>
-                            <correlation_mode>0</correlation_mode>
-                            <correlation_tag/>
-                            <url/>
-                            <status>0</status>
-                            <priority>2</priority>
-                            <description/>
-                            <type>0</type>
-                            <manual_close>0</manual_close>
-                            <dependencies/>
-                            <tags/>
-                        </trigger_prototype>
-                    </trigger_prototypes>
-                    <graph_prototypes>
-                        <graph_prototype>
-                            <name>Disk space usage {#FSNAME}</name>
-                            <width>600</width>
-                            <height>340</height>
-                            <yaxismin>0.0000</yaxismin>
-                            <yaxismax>100.0000</yaxismax>
-                            <show_work_period>0</show_work_period>
-                            <show_triggers>0</show_triggers>
-                            <type>2</type>
-                            <show_legend>1</show_legend>
-                            <show_3d>1</show_3d>
-                            <percent_left>0.0000</percent_left>
-                            <percent_right>0.0000</percent_right>
-                            <ymin_type_1>0</ymin_type_1>
-                            <ymax_type_1>0</ymax_type_1>
-                            <ymin_item_1>0</ymin_item_1>
-                            <ymax_item_1>0</ymax_item_1>
-                            <graph_items>
-                                <graph_item>
-                                    <sortorder>0</sortorder>
-                                    <drawtype>0</drawtype>
-                                    <color>C80000</color>
-                                    <yaxisside>0</yaxisside>
-                                    <calc_fnc>2</calc_fnc>
-                                    <type>2</type>
-                                    <item>
-                                        <host>Template Linux Container</host>
-                                        <key>vfs.fs.size[{#FSNAME},total]</key>
-                                    </item>
-                                </graph_item>
-                                <graph_item>
-                                    <sortorder>1</sortorder>
-                                    <drawtype>0</drawtype>
-                                    <color>00C800</color>
-                                    <yaxisside>0</yaxisside>
-                                    <calc_fnc>2</calc_fnc>
-                                    <type>0</type>
-                                    <item>
-                                        <host>Template Linux Container</host>
-                                        <key>vfs.fs.size[{#FSNAME},free]</key>
-                                    </item>
-                                </graph_item>
-                            </graph_items>
-                        </graph_prototype>
-                    </graph_prototypes>
-                    <host_prototypes/>
-                    <jmx_endpoint/>
-                </discovery_rule>
-            </discovery_rules>
-            <httptests/>
-            <macros/>
+            <macros>
+                <macro>
+                    <macro>{$MEMORY.AVAILABLE.MIN}</macro>
+                    <value>20M</value>
+                    <description>This macro is used as a threshold in memory available trigger.</description>
+                </macro>
+                <macro>
+                    <macro>{$MEMORY.UTIL.MAX}</macro>
+                    <value>90</value>
+                    <description>This macro is used as a threshold in memory utilization trigger.</description>
+                </macro>
+                <macro>
+                    <macro>{$SWAP.PFREE.MIN.WARN}</macro>
+                    <value>50</value>
+                </macro>
+            </macros>
+        </template>
+        <template>
+            <template>Template OS Linux Container by Zabbix agent</template>
+            <name>Template OS Linux Container by Zabbix agent</name>
+            <description>Official Linux template. Requires agent of Zabbix 3.0.14, 3.4.5 and 4.0.0 or newer.&#13;
+&#13;
+Known Issues:&#13;
+&#13;
+  Description: Network discovery. Zabbix agent as of 4.2 doesn't support items such as net.if.status, net.if.speed.&#13;
+&#13;
+You can discuss this template or leave feedback on our forum https://www.zabbix.com/forum/zabbix-suggestions-and-feedback/387225-discussion-thread-for-official-zabbix-template-for-linux&#13;
+&#13;
+Template tooling version used: 0.32</description>
             <templates>
                 <template>
-                    <name>Template App Zabbix Agent</name>
+                    <name>Template Module Linux block devices by Zabbix agent</name>
+                </template>
+                <template>
+                    <name>Template Module Linux Container CPU by Zabbix agent</name>
+                </template>
+                <template>
+                    <name>Template Module Linux Container memory by Zabbix agent</name>
+                </template>
+                <template>
+                    <name>Template Module Linux filesystems by Zabbix agent</name>
+                </template>
+                <template>
+                    <name>Template Module Linux generic by Zabbix agent</name>
+                </template>
+                <template>
+                    <name>Template Module Linux network interfaces by Zabbix agent</name>
+                </template>
+                <template>
+                    <name>Template Module Zabbix agent</name>
                 </template>
             </templates>
+            <groups>
+                <group>
+                    <name>Templates/Operating systems</name>
+                </group>
+            </groups>
             <screens>
+                <screen>
+                    <name>Network interfaces</name>
+                    <hsize>1</hsize>
+                    <vsize>1</vsize>
+                    <screen_items>
+                        <screen_item>
+                            <resourcetype>20</resourcetype>
+                            <style>0</style>
+                            <resource>
+                                <name>Interface {#IFNAME}: Network traffic</name>
+                                <host>Template OS Linux Container by Zabbix agent</host>
+                            </resource>
+                            <width>500</width>
+                            <height>100</height>
+                            <x>0</x>
+                            <y>0</y>
+                            <colspan>1</colspan>
+                            <rowspan>1</rowspan>
+                            <elements>25</elements>
+                            <valign>0</valign>
+                            <halign>0</halign>
+                            <dynamic>0</dynamic>
+                            <sort_triggers>0</sort_triggers>
+                            <url/>
+                            <application/>
+                            <max_columns>3</max_columns>
+                        </screen_item>
+                    </screen_items>
+                </screen>
                 <screen>
                     <name>System performance</name>
                     <hsize>2</hsize>
-                    <vsize>3</vsize>
+                    <vsize>7</vsize>
                     <screen_items>
                         <screen_item>
-                            <resourcetype>0</resourcetype>
-                            <width>500</width>
-                            <height>120</height>
-                            <x>0</x>
-                            <y>0</y>
-                            <colspan>1</colspan>
-                            <rowspan>1</rowspan>
-                            <elements>0</elements>
-                            <valign>1</valign>
-                            <halign>0</halign>
+                            <resourcetype>20</resourcetype>
                             <style>0</style>
-                            <url/>
-                            <dynamic>0</dynamic>
-                            <sort_triggers>0</sort_triggers>
                             <resource>
-                                <name>CPU load</name>
-                                <host>Template Linux Container</host>
+                                <name>{#FSNAME}: Disk space usage</name>
+                                <host>Template OS Linux Container by Zabbix agent</host>
                             </resource>
-                            <max_columns>3</max_columns>
-                            <application/>
-                        </screen_item>
-                        <screen_item>
-                            <resourcetype>0</resourcetype>
-                            <width>500</width>
-                            <height>148</height>
-                            <x>1</x>
-                            <y>0</y>
-                            <colspan>1</colspan>
-                            <rowspan>1</rowspan>
-                            <elements>0</elements>
-                            <valign>1</valign>
-                            <halign>0</halign>
-                            <style>0</style>
-                            <url/>
-                            <dynamic>0</dynamic>
-                            <sort_triggers>0</sort_triggers>
-                            <resource>
-                                <name>CPU utilization</name>
-                                <host>Template Linux Container</host>
-                            </resource>
-                            <max_columns>3</max_columns>
-                            <application/>
-                        </screen_item>
-                        <screen_item>
-                            <resourcetype>0</resourcetype>
-                            <width>500</width>
-                            <height>100</height>
-                            <x>0</x>
-                            <y>1</y>
-                            <colspan>1</colspan>
-                            <rowspan>1</rowspan>
-                            <elements>0</elements>
-                            <valign>0</valign>
-                            <halign>0</halign>
-                            <style>0</style>
-                            <url/>
-                            <dynamic>0</dynamic>
-                            <sort_triggers>0</sort_triggers>
-                            <resource>
-                                <name>Memory usage</name>
-                                <host>Template Linux Container</host>
-                            </resource>
-                            <max_columns>3</max_columns>
-                            <application/>
-                        </screen_item>
-                        <screen_item>
-                            <resourcetype>0</resourcetype>
-                            <width>500</width>
-                            <height>300</height>
-                            <x>1</x>
-                            <y>1</y>
-                            <colspan>1</colspan>
-                            <rowspan>1</rowspan>
-                            <elements>0</elements>
-                            <valign>0</valign>
-                            <halign>0</halign>
-                            <style>0</style>
-                            <url/>
-                            <dynamic>0</dynamic>
-                            <sort_triggers>0</sort_triggers>
-                            <resource>
-                                <name>Swap usage</name>
-                                <host>Template Linux Container</host>
-                            </resource>
-                            <max_columns>3</max_columns>
-                            <application/>
-                        </screen_item>
-                        <screen_item>
-                            <resourcetype>1</resourcetype>
                             <width>500</width>
                             <height>100</height>
                             <x>0</x>
                             <y>2</y>
-                            <colspan>1</colspan>
+                            <colspan>2</colspan>
                             <rowspan>1</rowspan>
-                            <elements>0</elements>
+                            <elements>25</elements>
                             <valign>0</valign>
                             <halign>0</halign>
-                            <style>0</style>
-                            <url/>
                             <dynamic>0</dynamic>
                             <sort_triggers>0</sort_triggers>
-                            <resource>
-                                <key>proc.num[]</key>
-                                <host>Template Linux Container</host>
-                            </resource>
-                            <max_columns>3</max_columns>
+                            <url/>
                             <application/>
+                            <max_columns>3</max_columns>
                         </screen_item>
                         <screen_item>
-                            <resourcetype>1</resourcetype>
+                            <resourcetype>20</resourcetype>
+                            <style>0</style>
+                            <resource>
+                                <name>{#DEVNAME}: Disk read/write rates</name>
+                                <host>Template OS Linux Container by Zabbix agent</host>
+                            </resource>
                             <width>500</width>
                             <height>100</height>
-                            <x>1</x>
-                            <y>2</y>
-                            <colspan>1</colspan>
+                            <x>0</x>
+                            <y>3</y>
+                            <colspan>2</colspan>
                             <rowspan>1</rowspan>
-                            <elements>0</elements>
+                            <elements>25</elements>
                             <valign>0</valign>
                             <halign>0</halign>
-                            <style>0</style>
-                            <url/>
                             <dynamic>0</dynamic>
                             <sort_triggers>0</sort_triggers>
-                            <resource>
-                                <key>proc.num[,,run]</key>
-                                <host>Template Linux Container</host>
-                            </resource>
-                            <max_columns>3</max_columns>
+                            <url/>
                             <application/>
+                            <max_columns>3</max_columns>
+                        </screen_item>
+                        <screen_item>
+                            <resourcetype>20</resourcetype>
+                            <style>0</style>
+                            <resource>
+                                <name>{#DEVNAME}: Disk average waiting time</name>
+                                <host>Template OS Linux Container by Zabbix agent</host>
+                            </resource>
+                            <width>500</width>
+                            <height>100</height>
+                            <x>0</x>
+                            <y>4</y>
+                            <colspan>2</colspan>
+                            <rowspan>1</rowspan>
+                            <elements>25</elements>
+                            <valign>0</valign>
+                            <halign>0</halign>
+                            <dynamic>0</dynamic>
+                            <sort_triggers>0</sort_triggers>
+                            <url/>
+                            <application/>
+                            <max_columns>3</max_columns>
+                        </screen_item>
+                        <screen_item>
+                            <resourcetype>20</resourcetype>
+                            <style>0</style>
+                            <resource>
+                                <name>{#DEVNAME}: Disk utilization and queue</name>
+                                <host>Template OS Linux Container by Zabbix agent</host>
+                            </resource>
+                            <width>500</width>
+                            <height>100</height>
+                            <x>0</x>
+                            <y>5</y>
+                            <colspan>2</colspan>
+                            <rowspan>1</rowspan>
+                            <elements>25</elements>
+                            <valign>0</valign>
+                            <halign>0</halign>
+                            <dynamic>0</dynamic>
+                            <sort_triggers>0</sort_triggers>
+                            <url/>
+                            <application/>
+                            <max_columns>3</max_columns>
+                        </screen_item>
+                        <screen_item>
+                            <resourcetype>20</resourcetype>
+                            <style>0</style>
+                            <resource>
+                                <name>Interface {#IFNAME}: Network traffic</name>
+                                <host>Template OS Linux Container by Zabbix agent</host>
+                            </resource>
+                            <width>500</width>
+                            <height>100</height>
+                            <x>0</x>
+                            <y>6</y>
+                            <colspan>2</colspan>
+                            <rowspan>1</rowspan>
+                            <elements>25</elements>
+                            <valign>0</valign>
+                            <halign>0</halign>
+                            <dynamic>0</dynamic>
+                            <sort_triggers>0</sort_triggers>
+                            <url/>
+                            <application/>
+                            <max_columns>3</max_columns>
                         </screen_item>
                     </screen_items>
                 </screen>
@@ -1983,502 +608,245 @@
     </templates>
     <triggers>
         <trigger>
-            <expression>{Template Linux Container:vfs.file.cksum[/etc/passwd].diff(0)}&gt;0</expression>
-            <recovery_mode>0</recovery_mode>
-            <recovery_expression/>
-            <name>/etc/passwd has been changed on {HOST.NAME}</name>
-            <correlation_mode>0</correlation_mode>
-            <correlation_tag/>
-            <url/>
-            <status>0</status>
-            <priority>2</priority>
-            <description/>
-            <type>0</type>
-            <manual_close>0</manual_close>
-            <dependencies/>
-            <tags/>
+            <expression>{Template Module Linux Container memory by Zabbix agent:ct.swap.size[pfree].min(5m)}&lt;{$SWAP.PFREE.MIN.WARN} and {Template Module Linux Container memory by Zabbix agent:ct.swap.size[total].last()}&gt;0</expression>
+            <name>High swap space usage ( less than {$SWAP.PFREE.MIN.WARN}% free)</name>
+            <opdata>Free: {ITEM.LASTVALUE1}, total: {ITEM.LASTVALUE2}</opdata>
+            <priority>WARNING</priority>
+            <description>This trigger is ignored, if there is no swap configured</description>
+            <dependencies>
+                <dependency>
+                    <name>High memory utilization ( &gt;{$MEMORY.UTIL.MAX}% for 5m)</name>
+                    <expression>{Template Module Linux Container memory by Zabbix agent:ct.memory.size[pavailable].min(5m)}&gt;{$MEMORY.UTIL.MAX}</expression>
+                </dependency>
+                <dependency>
+                    <name>Lack of available memory ( &lt; {$MEMORY.AVAILABLE.MIN} of {ITEM.VALUE2})</name>
+                    <expression>{Template Module Linux Container memory by Zabbix agent:ct.memory.size[available].min(5m)}&lt;{$MEMORY.AVAILABLE.MIN} and {Template Module Linux Container memory by Zabbix agent:ct.memory.size[total].last()}&gt;0</expression>
+                </dependency>
+            </dependencies>
         </trigger>
         <trigger>
-            <expression>{Template Linux Container:kernel.maxfiles.last(0)}&lt;1024</expression>
-            <recovery_mode>0</recovery_mode>
-            <recovery_expression/>
-            <name>Configured max number of opened files is too low on {HOST.NAME}</name>
-            <correlation_mode>0</correlation_mode>
-            <correlation_tag/>
-            <url/>
-            <status>0</status>
-            <priority>1</priority>
-            <description/>
-            <type>0</type>
-            <manual_close>0</manual_close>
-            <dependencies/>
-            <tags/>
+            <expression>{Template Module Linux Container memory by Zabbix agent:ct.memory.size[available].min(5m)}&lt;{$MEMORY.AVAILABLE.MIN} and {Template Module Linux Container memory by Zabbix agent:ct.memory.size[total].last()}&gt;0</expression>
+            <name>Lack of available memory ( &lt; {$MEMORY.AVAILABLE.MIN} of {ITEM.VALUE2})</name>
+            <opdata>Available: {ITEM.LASTVALUE1}, total: {ITEM.LASTVALUE2}</opdata>
+            <priority>AVERAGE</priority>
         </trigger>
         <trigger>
-            <expression>{Template Linux Container:kernel.maxproc.last(0)}&lt;256</expression>
-            <recovery_mode>0</recovery_mode>
-            <recovery_expression/>
-            <name>Configured max number of processes is too low on {HOST.NAME}</name>
-            <correlation_mode>0</correlation_mode>
-            <correlation_tag/>
-            <url/>
-            <status>0</status>
-            <priority>1</priority>
-            <description/>
-            <type>0</type>
-            <manual_close>0</manual_close>
-            <dependencies/>
-            <tags/>
-        </trigger>
-        <trigger>
-            <expression>{Template Linux Container:system.cpu.util[,iowait].avg(5m)}&gt;75</expression>
-            <recovery_mode>0</recovery_mode>
-            <recovery_expression/>
-            <name>Disk I/O is overloaded on {HOST.NAME}</name>
-            <correlation_mode>0</correlation_mode>
-            <correlation_tag/>
-            <url/>
-            <status>0</status>
-            <priority>2</priority>
-            <description>OS spends significant time waiting for I/O (input/output) operations. It could be indicator of performance issues with storage system.</description>
-            <type>0</type>
-            <manual_close>0</manual_close>
-            <dependencies/>
-            <tags/>
-        </trigger>
-        <trigger>
-            <expression>{Template Linux Container:system.uname.diff(0)}&gt;0</expression>
-            <recovery_mode>0</recovery_mode>
-            <recovery_expression/>
-            <name>Host information was changed on {HOST.NAME}</name>
-            <correlation_mode>0</correlation_mode>
-            <correlation_tag/>
-            <url/>
-            <status>0</status>
-            <priority>1</priority>
-            <description/>
-            <type>0</type>
-            <manual_close>0</manual_close>
-            <dependencies/>
-            <tags/>
-        </trigger>
-        <trigger>
-            <expression>{Template Linux Container:system.hostname.diff(0)}&gt;0</expression>
-            <recovery_mode>0</recovery_mode>
-            <recovery_expression/>
-            <name>Hostname was changed on {HOST.NAME}</name>
-            <correlation_mode>0</correlation_mode>
-            <correlation_tag/>
-            <url/>
-            <status>0</status>
-            <priority>1</priority>
-            <description/>
-            <type>0</type>
-            <manual_close>0</manual_close>
-            <dependencies/>
-            <tags/>
-        </trigger>
-        <trigger>
-            <expression>{Template Linux Container:ct.memory.size[available].last(0)}&lt;20M</expression>
-            <recovery_mode>0</recovery_mode>
-            <recovery_expression/>
-            <name>Lack of available memory on server {HOST.NAME}</name>
-            <correlation_mode>0</correlation_mode>
-            <correlation_tag/>
-            <url/>
-            <status>0</status>
-            <priority>3</priority>
-            <description/>
-            <type>0</type>
-            <manual_close>0</manual_close>
-            <dependencies/>
-            <tags/>
-        </trigger>
-        <trigger>
-            <expression>{Template Linux Container:ct.swap.size[pused].last(0)}&gt;50</expression>
-            <recovery_mode>0</recovery_mode>
-            <recovery_expression/>
-            <name>Lack of free swap space on {HOST.NAME}</name>
-            <correlation_mode>0</correlation_mode>
-            <correlation_tag/>
-            <url/>
-            <status>1</status>
-            <priority>2</priority>
-            <description>It probably means that the systems requires more physical memory.</description>
-            <type>0</type>
-            <manual_close>0</manual_close>
-            <dependencies/>
-            <tags/>
-        </trigger>
-        <trigger>
-            <expression>{Template Linux Container:ct.cpu.load[percpu,avg1].avg(5m)}&gt;20</expression>
-            <recovery_mode>0</recovery_mode>
-            <recovery_expression/>
-            <name>Processor load is too high on {HOST.NAME}</name>
-            <correlation_mode>0</correlation_mode>
-            <correlation_tag/>
-            <url/>
-            <status>0</status>
-            <priority>2</priority>
-            <description/>
-            <type>0</type>
-            <manual_close>0</manual_close>
-            <dependencies/>
-            <tags/>
-        </trigger>
-        <trigger>
-            <expression>{Template Linux Container:proc.num[].avg(5m)}&gt;1000</expression>
-            <recovery_mode>0</recovery_mode>
-            <recovery_expression/>
-            <name>Too many processes on {HOST.NAME}</name>
-            <correlation_mode>0</correlation_mode>
-            <correlation_tag/>
-            <url/>
-            <status>0</status>
-            <priority>2</priority>
-            <description/>
-            <type>0</type>
-            <manual_close>0</manual_close>
-            <dependencies/>
-            <tags/>
-        </trigger>
-        <trigger>
-            <expression>{Template Linux Container:proc.num[,,run].avg(5m)}&gt;100</expression>
-            <recovery_mode>0</recovery_mode>
-            <recovery_expression/>
-            <name>Too many processes running on {HOST.NAME}</name>
-            <correlation_mode>0</correlation_mode>
-            <correlation_tag/>
-            <url/>
-            <status>0</status>
-            <priority>2</priority>
-            <description/>
-            <type>0</type>
-            <manual_close>0</manual_close>
-            <dependencies/>
-            <tags/>
-        </trigger>
-        <trigger>
-            <expression>{Template Linux Container:system.uptime.change(0)}&lt;0</expression>
-            <recovery_mode>0</recovery_mode>
-            <recovery_expression/>
-            <name>{HOST.NAME} has just been restarted</name>
-            <correlation_mode>0</correlation_mode>
-            <correlation_tag/>
-            <url/>
-            <status>0</status>
-            <priority>1</priority>
-            <description/>
-            <type>0</type>
-            <manual_close>0</manual_close>
-            <dependencies/>
-            <tags/>
+            <expression>{Template Module Linux Container CPU by Zabbix agent:ct.cpu.load[all,avg1].min(5m)}/{Template Module Linux Container CPU by Zabbix agent:system.cpu.num.last()}&gt;{$LOAD_AVG_PER_CPU.MAX.WARN}&#13;
+and {Template Module Linux Container CPU by Zabbix agent:ct.cpu.load[all,avg5].last()}&gt;0&#13;
+and {Template Module Linux Container CPU by Zabbix agent:ct.cpu.load[all,avg15].last()}&gt;0</expression>
+            <name>Load average is too high (per CPU load over {$LOAD_AVG_PER_CPU.MAX.WARN} for 5m)</name>
+            <opdata>Load averages(1m 5m 15m): ({ITEM.LASTVALUE1} {ITEM.LASTVALUE3} {ITEM.LASTVALUE4}), # of CPUs: {ITEM.LASTVALUE2}</opdata>
+            <priority>AVERAGE</priority>
+            <description>Per CPU load average is too high. Your system may be slow to respond.</description>
         </trigger>
     </triggers>
     <graphs>
         <graph>
             <name>CPU jumps</name>
-            <width>900</width>
-            <height>200</height>
-            <yaxismin>0.0000</yaxismin>
-            <yaxismax>100.0000</yaxismax>
-            <show_work_period>1</show_work_period>
-            <show_triggers>1</show_triggers>
-            <type>0</type>
-            <show_legend>1</show_legend>
-            <show_3d>0</show_3d>
-            <percent_left>0.0000</percent_left>
-            <percent_right>0.0000</percent_right>
-            <ymin_type_1>0</ymin_type_1>
-            <ymax_type_1>0</ymax_type_1>
-            <ymin_item_1>0</ymin_item_1>
-            <ymax_item_1>0</ymax_item_1>
             <graph_items>
                 <graph_item>
-                    <sortorder>0</sortorder>
-                    <drawtype>0</drawtype>
-                    <color>009900</color>
-                    <yaxisside>0</yaxisside>
-                    <calc_fnc>2</calc_fnc>
-                    <type>0</type>
+                    <color>1A7C11</color>
                     <item>
-                        <host>Template Linux Container</host>
+                        <host>Template Module Linux Container CPU by Zabbix agent</host>
                         <key>system.cpu.switches</key>
                     </item>
                 </graph_item>
                 <graph_item>
                     <sortorder>1</sortorder>
-                    <drawtype>0</drawtype>
-                    <color>000099</color>
-                    <yaxisside>0</yaxisside>
-                    <calc_fnc>2</calc_fnc>
-                    <type>0</type>
+                    <color>2774A4</color>
                     <item>
-                        <host>Template Linux Container</host>
+                        <host>Template Module Linux Container CPU by Zabbix agent</host>
                         <key>system.cpu.intr</key>
                     </item>
                 </graph_item>
             </graph_items>
         </graph>
         <graph>
-            <name>CPU load</name>
-            <width>900</width>
-            <height>200</height>
-            <yaxismin>0.0000</yaxismin>
-            <yaxismax>100.0000</yaxismax>
-            <show_work_period>1</show_work_period>
-            <show_triggers>1</show_triggers>
-            <type>0</type>
-            <show_legend>1</show_legend>
-            <show_3d>0</show_3d>
-            <percent_left>0.0000</percent_left>
-            <percent_right>0.0000</percent_right>
-            <ymin_type_1>1</ymin_type_1>
-            <ymax_type_1>0</ymax_type_1>
-            <ymin_item_1>0</ymin_item_1>
-            <ymax_item_1>0</ymax_item_1>
+            <name>CPU usage</name>
+            <type>STACKED</type>
+            <ymin_type_1>FIXED</ymin_type_1>
+            <ymax_type_1>FIXED</ymax_type_1>
             <graph_items>
                 <graph_item>
-                    <sortorder>0</sortorder>
-                    <drawtype>0</drawtype>
-                    <color>009900</color>
-                    <yaxisside>0</yaxisside>
-                    <calc_fnc>2</calc_fnc>
-                    <type>0</type>
+                    <color>1A7C11</color>
                     <item>
-                        <host>Template Linux Container</host>
-                        <key>ct.cpu.load[percpu,avg1]</key>
+                        <host>Template Module Linux Container CPU by Zabbix agent</host>
+                        <key>system.cpu.util[,system]</key>
                     </item>
                 </graph_item>
                 <graph_item>
                     <sortorder>1</sortorder>
-                    <drawtype>0</drawtype>
-                    <color>000099</color>
-                    <yaxisside>0</yaxisside>
-                    <calc_fnc>2</calc_fnc>
-                    <type>0</type>
+                    <color>2774A4</color>
                     <item>
-                        <host>Template Linux Container</host>
-                        <key>ct.cpu.load[percpu,avg5]</key>
+                        <host>Template Module Linux Container CPU by Zabbix agent</host>
+                        <key>system.cpu.util[,user]</key>
                     </item>
                 </graph_item>
                 <graph_item>
                     <sortorder>2</sortorder>
-                    <drawtype>0</drawtype>
-                    <color>990000</color>
-                    <yaxisside>0</yaxisside>
-                    <calc_fnc>2</calc_fnc>
-                    <type>0</type>
+                    <color>F63100</color>
                     <item>
-                        <host>Template Linux Container</host>
-                        <key>ct.cpu.load[percpu,avg15]</key>
+                        <host>Template Module Linux Container CPU by Zabbix agent</host>
+                        <key>system.cpu.util[,nice]</key>
+                    </item>
+                </graph_item>
+                <graph_item>
+                    <sortorder>3</sortorder>
+                    <color>A54F10</color>
+                    <item>
+                        <host>Template Module Linux Container CPU by Zabbix agent</host>
+                        <key>system.cpu.util[,iowait]</key>
+                    </item>
+                </graph_item>
+                <graph_item>
+                    <sortorder>4</sortorder>
+                    <color>FC6EA3</color>
+                    <item>
+                        <host>Template Module Linux Container CPU by Zabbix agent</host>
+                        <key>system.cpu.util[,steal]</key>
+                    </item>
+                </graph_item>
+                <graph_item>
+                    <sortorder>5</sortorder>
+                    <color>6C59DC</color>
+                    <item>
+                        <host>Template Module Linux Container CPU by Zabbix agent</host>
+                        <key>system.cpu.util[,interrupt]</key>
+                    </item>
+                </graph_item>
+                <graph_item>
+                    <sortorder>6</sortorder>
+                    <color>AC8C14</color>
+                    <item>
+                        <host>Template Module Linux Container CPU by Zabbix agent</host>
+                        <key>system.cpu.util[,softirq]</key>
+                    </item>
+                </graph_item>
+                <graph_item>
+                    <sortorder>7</sortorder>
+                    <color>611F27</color>
+                    <item>
+                        <host>Template Module Linux Container CPU by Zabbix agent</host>
+                        <key>system.cpu.util[,guest]</key>
+                    </item>
+                </graph_item>
+                <graph_item>
+                    <sortorder>8</sortorder>
+                    <color>F230E0</color>
+                    <item>
+                        <host>Template Module Linux Container CPU by Zabbix agent</host>
+                        <key>system.cpu.util[,guest_nice]</key>
                     </item>
                 </graph_item>
             </graph_items>
         </graph>
         <graph>
             <name>CPU utilization</name>
-            <width>900</width>
-            <height>200</height>
-            <yaxismin>0.0000</yaxismin>
-            <yaxismax>100.0000</yaxismax>
-            <show_work_period>1</show_work_period>
-            <show_triggers>0</show_triggers>
-            <type>1</type>
-            <show_legend>1</show_legend>
-            <show_3d>0</show_3d>
-            <percent_left>0.0000</percent_left>
-            <percent_right>0.0000</percent_right>
-            <ymin_type_1>1</ymin_type_1>
-            <ymax_type_1>1</ymax_type_1>
-            <ymin_item_1>0</ymin_item_1>
-            <ymax_item_1>0</ymax_item_1>
+            <ymin_type_1>FIXED</ymin_type_1>
+            <ymax_type_1>FIXED</ymax_type_1>
             <graph_items>
                 <graph_item>
-                    <sortorder>0</sortorder>
-                    <drawtype>1</drawtype>
-                    <color>FF5555</color>
-                    <yaxisside>0</yaxisside>
-                    <calc_fnc>2</calc_fnc>
-                    <type>0</type>
+                    <drawtype>GRADIENT_LINE</drawtype>
+                    <color>1A7C11</color>
                     <item>
-                        <host>Template Linux Container</host>
-                        <key>system.cpu.util[,steal]</key>
-                    </item>
-                </graph_item>
-                <graph_item>
-                    <sortorder>1</sortorder>
-                    <drawtype>1</drawtype>
-                    <color>55FF55</color>
-                    <yaxisside>0</yaxisside>
-                    <calc_fnc>2</calc_fnc>
-                    <type>0</type>
-                    <item>
-                        <host>Template Linux Container</host>
-                        <key>system.cpu.util[,softirq]</key>
-                    </item>
-                </graph_item>
-                <graph_item>
-                    <sortorder>2</sortorder>
-                    <drawtype>1</drawtype>
-                    <color>009999</color>
-                    <yaxisside>0</yaxisside>
-                    <calc_fnc>2</calc_fnc>
-                    <type>0</type>
-                    <item>
-                        <host>Template Linux Container</host>
-                        <key>system.cpu.util[,interrupt]</key>
-                    </item>
-                </graph_item>
-                <graph_item>
-                    <sortorder>3</sortorder>
-                    <drawtype>1</drawtype>
-                    <color>990099</color>
-                    <yaxisside>0</yaxisside>
-                    <calc_fnc>2</calc_fnc>
-                    <type>0</type>
-                    <item>
-                        <host>Template Linux Container</host>
-                        <key>system.cpu.util[,nice]</key>
-                    </item>
-                </graph_item>
-                <graph_item>
-                    <sortorder>4</sortorder>
-                    <drawtype>1</drawtype>
-                    <color>999900</color>
-                    <yaxisside>0</yaxisside>
-                    <calc_fnc>2</calc_fnc>
-                    <type>0</type>
-                    <item>
-                        <host>Template Linux Container</host>
-                        <key>system.cpu.util[,iowait]</key>
-                    </item>
-                </graph_item>
-                <graph_item>
-                    <sortorder>5</sortorder>
-                    <drawtype>1</drawtype>
-                    <color>990000</color>
-                    <yaxisside>0</yaxisside>
-                    <calc_fnc>2</calc_fnc>
-                    <type>0</type>
-                    <item>
-                        <host>Template Linux Container</host>
-                        <key>system.cpu.util[,system]</key>
-                    </item>
-                </graph_item>
-                <graph_item>
-                    <sortorder>6</sortorder>
-                    <drawtype>1</drawtype>
-                    <color>000099</color>
-                    <yaxisside>0</yaxisside>
-                    <calc_fnc>2</calc_fnc>
-                    <type>0</type>
-                    <item>
-                        <host>Template Linux Container</host>
-                        <key>system.cpu.util[,user]</key>
-                    </item>
-                </graph_item>
-                <graph_item>
-                    <sortorder>7</sortorder>
-                    <drawtype>1</drawtype>
-                    <color>009900</color>
-                    <yaxisside>0</yaxisside>
-                    <calc_fnc>2</calc_fnc>
-                    <type>0</type>
-                    <item>
-                        <host>Template Linux Container</host>
-                        <key>system.cpu.util[,idle]</key>
+                        <host>Template Module Linux Container CPU by Zabbix agent</host>
+                        <key>system.cpu.util</key>
                     </item>
                 </graph_item>
             </graph_items>
         </graph>
         <graph>
             <name>Memory usage</name>
-            <width>900</width>
-            <height>200</height>
-            <yaxismin>0.0000</yaxismin>
-            <yaxismax>100.0000</yaxismax>
-            <show_work_period>1</show_work_period>
-            <show_triggers>1</show_triggers>
-            <type>0</type>
-            <show_legend>1</show_legend>
-            <show_3d>0</show_3d>
-            <percent_left>0.0000</percent_left>
-            <percent_right>0.0000</percent_right>
-            <ymin_type_1>1</ymin_type_1>
-            <ymax_type_1>2</ymax_type_1>
-            <ymin_item_1>0</ymin_item_1>
-            <ymax_item_1>
-                <host>Template Linux Container</host>
-                <key>ct.memory.size[total]</key>
-            </ymax_item_1>
+            <ymin_type_1>FIXED</ymin_type_1>
             <graph_items>
                 <graph_item>
-                    <sortorder>0</sortorder>
-                    <drawtype>1</drawtype>
-                    <color>BB0000</color>
-                    <yaxisside>0</yaxisside>
-                    <calc_fnc>2</calc_fnc>
-                    <type>0</type>
+                    <drawtype>BOLD_LINE</drawtype>
+                    <color>1A7C11</color>
                     <item>
-                        <host>Template Linux Container</host>
+                        <host>Template Module Linux Container memory by Zabbix agent</host>
                         <key>ct.memory.size[total]</key>
                     </item>
                 </graph_item>
                 <graph_item>
                     <sortorder>1</sortorder>
-                    <drawtype>1</drawtype>
-                    <color>00C800</color>
-                    <yaxisside>0</yaxisside>
-                    <calc_fnc>2</calc_fnc>
-                    <type>0</type>
+                    <drawtype>GRADIENT_LINE</drawtype>
+                    <color>2774A4</color>
                     <item>
-                        <host>Template Linux Container</host>
+                        <host>Template Module Linux Container memory by Zabbix agent</host>
                         <key>ct.memory.size[available]</key>
                     </item>
                 </graph_item>
             </graph_items>
         </graph>
         <graph>
-            <name>Swap usage</name>
-            <width>600</width>
-            <height>340</height>
-            <yaxismin>0.0000</yaxismin>
-            <yaxismax>0.0000</yaxismax>
-            <show_work_period>0</show_work_period>
-            <show_triggers>0</show_triggers>
-            <type>2</type>
-            <show_legend>1</show_legend>
-            <show_3d>0</show_3d>
-            <percent_left>0.0000</percent_left>
-            <percent_right>0.0000</percent_right>
-            <ymin_type_1>0</ymin_type_1>
-            <ymax_type_1>0</ymax_type_1>
-            <ymin_item_1>0</ymin_item_1>
-            <ymax_item_1>0</ymax_item_1>
+            <name>Memory utilization</name>
+            <ymin_type_1>FIXED</ymin_type_1>
+            <ymax_type_1>FIXED</ymax_type_1>
             <graph_items>
                 <graph_item>
-                    <sortorder>0</sortorder>
-                    <drawtype>0</drawtype>
-                    <color>AA0000</color>
-                    <yaxisside>0</yaxisside>
-                    <calc_fnc>2</calc_fnc>
-                    <type>0</type>
+                    <drawtype>GRADIENT_LINE</drawtype>
+                    <color>1A7C11</color>
                     <item>
-                        <host>Template Linux Container</host>
-                        <key>ct.swap.size[used]</key>
+                        <host>Template Module Linux Container memory by Zabbix agent</host>
+                        <key>ct.memory.size[pavailable]</key>
+                    </item>
+                </graph_item>
+            </graph_items>
+        </graph>
+        <graph>
+            <name>Swap usage</name>
+            <graph_items>
+                <graph_item>
+                    <color>1A7C11</color>
+                    <item>
+                        <host>Template Module Linux Container memory by Zabbix agent</host>
+                        <key>ct.swap.size[free]</key>
                     </item>
                 </graph_item>
                 <graph_item>
                     <sortorder>1</sortorder>
-                    <drawtype>0</drawtype>
-                    <color>00AA00</color>
-                    <yaxisside>0</yaxisside>
-                    <calc_fnc>2</calc_fnc>
-                    <type>2</type>
+                    <color>2774A4</color>
                     <item>
-                        <host>Template Linux Container</host>
+                        <host>Template Module Linux Container memory by Zabbix agent</host>
                         <key>ct.swap.size[total]</key>
+                    </item>
+                </graph_item>
+            </graph_items>
+        </graph>
+        <graph>
+            <name>System load</name>
+            <ymin_type_1>FIXED</ymin_type_1>
+            <graph_items>
+                <graph_item>
+                    <color>1A7C11</color>
+                    <item>
+                        <host>Template Module Linux Container CPU by Zabbix agent</host>
+                        <key>ct.cpu.load[all,avg1]</key>
+                    </item>
+                </graph_item>
+                <graph_item>
+                    <sortorder>1</sortorder>
+                    <color>2774A4</color>
+                    <item>
+                        <host>Template Module Linux Container CPU by Zabbix agent</host>
+                        <key>ct.cpu.load[all,avg5]</key>
+                    </item>
+                </graph_item>
+                <graph_item>
+                    <sortorder>2</sortorder>
+                    <color>F63100</color>
+                    <item>
+                        <host>Template Module Linux Container CPU by Zabbix agent</host>
+                        <key>ct.cpu.load[all,avg15]</key>
+                    </item>
+                </graph_item>
+                <graph_item>
+                    <sortorder>3</sortorder>
+                    <color>A54F10</color>
+                    <yaxisside>RIGHT</yaxisside>
+                    <item>
+                        <host>Template Module Linux Container CPU by Zabbix agent</host>
+                        <key>system.cpu.num</key>
                     </item>
                 </graph_item>
             </graph_items>
